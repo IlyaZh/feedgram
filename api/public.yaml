@@ -5,29 +5,55 @@ info:
   version: 1.0.0
 
 paths:
-  /v1/notes/list:
+  /v1/system/status:
     get:
       description: |
-        Получение списка заметок
-      operationId: GetNotesList
-      parameters:
-        - $ref: '#/components/schemas/Cursor'
-        - $ref: '#/components/schemas/Limit'
+        Получение информации о состоянии системы
+      operationId: GetSystemStatus
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotesList'
+                $ref: '#/components/schemas/SystemStatus'
+
+  /ping:
+    get:
+      description: |
+        Ручка статуса системы
+      operationId: GetPing
+      responses:
+        200:
+          description: OK
+        500:
+          description: has some troubles
 
 
 components:
   schemas:
-    Cursor:
-      in: query
-      name: limit
-      description: Курсор (NoteId) от которого начинать поиск
-      required: false
-      schema:
-        type: string
+    Error:
+      type: object
+      description: Ошибка
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Машиночитаемый код ошибки
+        message:
+          type: string
+    
+    SystemStatus:
+      type: object
+      description: Информация о системе
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - warn
+            - crit

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/IlyaZh/feedgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/entities"
 	"gopkg.in/yaml.v2"
 )
 

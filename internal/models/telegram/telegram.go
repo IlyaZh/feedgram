@@ -3,7 +3,7 @@ package telegram
 import (
 	"log"
 
-	"github.com/IlyaZh/feedgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/entities"
 	"google.golang.org/appengine/log"
 )
 
