@@ -26,6 +26,8 @@ const (
 	LOADING_TIMEOUT = 5
 )
 
+// TODO make chan for reading in goroutine
+
 func loadFromFilePeriodic() {
 	for range time.Tick(time.Second * time.Duration(cache.periodSecs)) {
 		yamlFile, err := os.ReadFile(fmt.Sprintf("%s%s", PRERIX, cache.fileName))

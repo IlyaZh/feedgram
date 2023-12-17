@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"google.golang.org/appengine/log"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Telegram struct {
@@ -12,6 +12,8 @@ type Telegram struct {
 	limit   int
 	timeout int
 	offset  int
+	api     *tgbotapi.BotAPI
+	isDebug bool
 }
 
 const (
@@ -19,7 +21,7 @@ const (
 	DEFAULT_LIMIT   = 100
 )
 
-func NewTelegram(settings entities.Telegram) Telegram {
+func NewTelegram(settings entities.ConfigTelegram, isDebug bool) Telegram {
 	limit := DEFAULT_LIMIT
 	if settings.Limit != nil {
 		limit = *settings.Limit
@@ -30,11 +32,31 @@ func NewTelegram(settings entities.Telegram) Telegram {
 		timeout = *settings.Timeout
 	}
 
-	return Telegram{token: settings.Token, limit: limit, timeout: timeout, offset: 0}
+	return Telegram{token: settings.Token, limit: limit, timeout: timeout, offset: 0, isDebug: isDebug}
+}
+
+func (t *Telegram) Start() {
+	var err error
+	t.api, err = tgbotapi.NewBotAPI(t.token)
+	if err != nil {
+		panic(err.Error())
+	}
+	t.api.Debug = t.isDebug
+
+	u := tgbotapi.NewUpdate(t.offset)
+	u.Timeout = t.timeout
+
+	updates := t.api.GetUpdatesChan(u)
+	for update := range updates {
+		if update.Message == nil {
+			continue
+		}
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+	}
 }
 
 func (c *Telegram) GetLimit() int {
-
+	return c.limit
 }
 
 func (c *Telegram) SetLimit(limit int) {

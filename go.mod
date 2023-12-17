@@ -5,6 +5,7 @@ go 1.21.3
 require (
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/oapi-codegen/gin-middleware v1.0.1
 	google.golang.org/appengine v1.6.8
 	gopkg.in/yaml.v2 v2.4.0

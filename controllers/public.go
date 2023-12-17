@@ -25,6 +25,8 @@ func (p *Public) GetPing(c *gin.Context) {
 }
 
 func (p *Public) GetSystemStatus(c *gin.Context) {
-	response := api.SystemStatus{}
+	response := api.SystemStatus{
+		Status: api.Ok,
+	}
 	c.JSON(http.StatusOK, response)
 }
