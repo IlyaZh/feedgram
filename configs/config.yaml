@@ -2,6 +2,16 @@ components:
     service:
         port: 8080
     telegram:
-        token: ''
+        token: 
         limit: 1
         timeout: 60
+    postgres:
+        host: localhost
+        user: 
+        password: 
+        port: 5432
+        database: 
+        sslmode: disable
+        max_open_connections: 5
+        max_idle_connections: 2
+        limit: 10

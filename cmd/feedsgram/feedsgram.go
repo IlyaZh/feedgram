@@ -32,16 +32,14 @@ func main() {
 	log.Println("Service initialization start")
 
 	configsCache := config.NewCache("config.yaml", 1)
-	config := configsCache.GetValues()
 	log.Println("Service initialization has finished")
-	// TODO change configs values to config cache component
 	log.Println("Telegram start")
-	telegram := telegram.NewTelegram(config.Components.Telegram, true)
-	go telegram.Start()
+	telegram := telegram.NewTelegram(configsCache, true)
+	telegram.Start()
 	log.Println("Telegram has started")
 	log.Println("WebServer start")
-	service := service.NewWebServer(config.Components.Service.Port)
-	go service.Start()
+	service := service.NewWebServer(configsCache)
+	service.Start()
 	log.Println("WebServer has started")
 
 	wait()
