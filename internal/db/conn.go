@@ -2,65 +2,65 @@ package db
 
 import (
 	"fmt"
+	"github.com/IlyaZh/feedsgram/internal/caches/configs"
 
-	"databases/sqlx"
-
-	"github.com/IlyaZh/feedsgram/internal/models/config"
+	"github.com/jmoiron/sqlx"
 )
 
 // http://jmoiron.github.io/sqlx/
 
 const (
-	DEFAULT_PORT                 = 5432
-	DEFAULT_HOST                 = "localhost"
-	DEFAULT_SSL_MODE             = "disable"
-	DEFAULT_MAX_OPEN_CONNECTIONS = 5
-	DEFAULT_MAX_IDLE_CONNECTIONS = 2
+	defaultPort               = 5432
+	defaultHost               = "localhost"
+	defaultSSlMode            = "disable"
+	defaultMaxOpenConnections = 5
+	defaultMaxIdleConnections = 2
 )
 
 type Db struct {
 	dbx *sqlx.DB
 }
 
-var ptr *Db
+var db *Db
 
-func CreateInstance(config *config.Cache) *Db {
-	if ptr != nil && ptr.dbx != nil {
-		return ptr
+func CreateInstance(config *configs.Cache) *Db {
+	if db != nil && db.dbx != nil {
+		return db
 	}
-	ptr = &Db{}
+	db = &Db{}
 
-	settings := config.GetValues().Components.Postgres
-	sslMode := DEFAULT_SSL_MODE
+	settings := config.GetValues().Postgres
+	sslMode := defaultSSlMode
 	if settings.SslMode != nil {
 		sslMode = *settings.SslMode
 	}
-	port := DEFAULT_PORT
+	port := defaultPort
 	if settings.Port != nil {
 		port = *settings.Port
 	}
-	host := DEFAULT_HOST
+	host := defaultHost
 	if settings.Host != nil {
 		host = *settings.Host
 	}
 
 	var err error
 	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", settings.User, settings.Password, host, port, sslMode)
-	ptr.dbx, err = sqlx.Connect("postgres", connectionString)
+	db.dbx, err = sqlx.Connect("postgres", connectionString)
 	if err != nil {
 		panic(err)
 	}
 
-	max_open_connections := DEFAULT_MAX_OPEN_CONNECTIONS
+	maxOpenConnections := defaultMaxOpenConnections
 	if settings.MaxOpenConnections != nil {
-		max_open_connections = *settings.MaxOpenConnections
+		maxOpenConnections = *settings.MaxOpenConnections
 	}
-	ptr.dbx.SetMaxOpenConns(max_open_connections)
-	max_idle_connections := DEFAULT_MAX_IDLE_CONNECTIONS
+	db.dbx.SetMaxOpenConns(maxOpenConnections)
+	maxIdleConnections := defaultMaxIdleConnections
 	if settings.MaxIdleConnections != nil {
-		max_idle_connections = *settings.MaxIdleConnections
+		maxIdleConnections = *settings.MaxIdleConnections
 	}
-	ptr.dbx.SetMaxIdleConns(max_idle_connections)
+	db.dbx.SetMaxIdleConns(maxIdleConnections)
+	return db
 }
 
 func (p *Db) Pool() *sqlx.DB {
