@@ -15,6 +15,7 @@ func (c *Component) messageFilter(msg *tgbotapi.Update) bool {
 
 	if len(settings.AllowedChatIds) > 0 {
 		if post.Chat == nil {
+			log.Info("Chat is nil")
 			return false
 		}
 		if _, allowed := settings.AllowedChatIds[post.Chat.ID]; !allowed {
@@ -24,6 +25,7 @@ func (c *Component) messageFilter(msg *tgbotapi.Update) bool {
 	}
 
 	if post.Text == "" {
+		log.Info("Message has no text")
 		return false
 	}
 

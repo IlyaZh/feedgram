@@ -1,15 +1,16 @@
 package configs
 
 import (
+	"time"
+
 	"github.com/labstack/gommon/log"
 	"gopkg.in/yaml.v2"
-	"time"
 )
 
 type Config struct {
 	WebServer WebServer
 	Telegram  Telegram
-	Postgres  Postgres
+	Mysql     Mysql
 	RssReader RssReader
 }
 
@@ -25,13 +26,12 @@ type WebServer struct {
 	Timeout time.Duration
 }
 
-type Postgres struct {
+type Mysql struct {
 	Host               *string `yaml:"host"`
 	User               string  `yaml:"user"`
 	Password           string  `yaml:"password"`
 	Port               *int    `yaml:"port"`
 	Database           string  `yaml:"database"`
-	SslMode            *string `yaml:"sslmode"`
 	MaxOpenConnections *int    `yaml:"max_open_connections"`
 	MaxIdleConnections *int    `yaml:"max_idle_connections"`
 	Limit              int     `yaml:"limit"`
@@ -65,16 +65,15 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 		AllowedChatIds: allowedChatIds,
 	}
 
-	c.Postgres = Postgres{
-		Host:               &secdist.Postgres.Host,
-		User:               secdist.Postgres.User,
-		Password:           secdist.Postgres.Password,
-		Port:               &secdist.Postgres.Port,
-		Database:           secdist.Postgres.Database,
-		SslMode:            raw.Postgres.SslMode,
-		MaxOpenConnections: raw.Postgres.MaxOpenConnections,
-		MaxIdleConnections: raw.Postgres.MaxIdleConnections,
-		Limit:              raw.Postgres.Limit,
+	c.Mysql = Mysql{
+		Host:               &secdist.Mysql.Host,
+		User:               secdist.Mysql.User,
+		Password:           secdist.Mysql.Password,
+		Port:               &secdist.Mysql.Port,
+		Database:           secdist.Mysql.Database,
+		MaxOpenConnections: raw.Mysql.MaxOpenConnections,
+		MaxIdleConnections: raw.Mysql.MaxIdleConnections,
+		Limit:              raw.Mysql.Limit,
 	}
 
 	c.RssReader = RssReader{
@@ -86,7 +85,7 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 type configRaw struct {
 	WebServer webServerRaw `yaml:"web_server"`
 	Telegram  telegramRaw  `yaml:"telegram"`
-	Postgres  postgresRaw  `yaml:"postgres"`
+	Mysql     mysqlRaw     `yaml:"mysql"`
 	RssReader rssReaderRaw `yaml:"rss_reader"`
 }
 
@@ -102,13 +101,12 @@ type telegramRaw struct {
 	AllowedChatIds []int64 `yaml:"allowed_chats_id"`
 }
 
-type postgresRaw struct {
+type mysqlRaw struct {
 	Host               *string `yaml:"host"`
 	User               string  `yaml:"user"`
 	Password           string  `yaml:"password"`
 	Port               *int    `yaml:"port"`
 	Database           string  `yaml:"database"`
-	SslMode            *string `yaml:"sslmode"`
 	MaxOpenConnections *int    `yaml:"max_open_connections"`
 	MaxIdleConnections *int    `yaml:"max_idle_connections"`
 	Limit              int     `yaml:"limit"`

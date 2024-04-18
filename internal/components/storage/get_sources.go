@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Component) GetSource(ctx context.Context, id *int, isActive *bool, limit *int) ([]entities.Source, error) {
-	settings := c.configs.GetValues().Postgres
+	settings := c.configs.GetValues().Mysql
 	if limit != nil {
 		limit = &settings.Limit
 	}

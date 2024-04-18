@@ -3,15 +3,15 @@ version: '3.1'
 services:
 
   db:
-    image: postgres:14.1-alpine
+    image: mariadb:11.3
     restart: always
-    environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      # POSTGRES_DB: feedsgram
+    ports:
+      - 3306:3306
+    env_file:
+      - ./.env
     volumes:
       - ./migrations:/docker-entrypoint-initdb.d
-      - ./.pgdata:/var/lib/postgresql/data
+      - ./.dbdata:/var/lib/mysql:Z
 
   adminer:
     image: adminer

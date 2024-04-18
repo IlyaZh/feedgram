@@ -10,9 +10,9 @@ SELECT
     created_at,
     posted_at,
     updated_at
-FROM feedgram.posts
+FROM posts
 WHERE
-    ($1::BIGINT IS NULL OR id = $1) AND
-    ($2::BOOLEAN IS NULL OR has_read = $2)
+    (:id::BIGINT IS NULL OR id = :id) AND
+    (:has_read::TINYINT IS NULL OR has_read = :has_read)
 ORDER BY created_at DESC
-LIMIT $3
+LIMIT :limit

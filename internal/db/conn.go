@@ -2,8 +2,10 @@ package db
 
 import (
 	"fmt"
+
 	"github.com/IlyaZh/feedsgram/internal/caches/configs"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -29,11 +31,7 @@ func CreateInstance(config *configs.Cache) *Db {
 	}
 	db = &Db{}
 
-	settings := config.GetValues().Postgres
-	sslMode := defaultSSlMode
-	if settings.SslMode != nil {
-		sslMode = *settings.SslMode
-	}
+	settings := config.GetValues().Mysql
 	port := defaultPort
 	if settings.Port != nil {
 		port = *settings.Port
@@ -43,12 +41,8 @@ func CreateInstance(config *configs.Cache) *Db {
 		host = *settings.Host
 	}
 
-	var err error
-	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", settings.User, settings.Password, host, port, sslMode)
-	db.dbx, err = sqlx.Connect("postgres", connectionString)
-	if err != nil {
-		panic(err)
-	}
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", settings.User, settings.Password, host, port, settings.Database)
+	db.dbx = sqlx.MustConnect("mysql", connectionString)
 
 	maxOpenConnections := defaultMaxOpenConnections
 	if settings.MaxOpenConnections != nil {

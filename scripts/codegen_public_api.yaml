@@ -1,4 +1,4 @@
-output: ../internal/generated/api/public.gen.go
+output: internal/generated/api/public.gen.go
 package: api
 generate:
   gin-server: true

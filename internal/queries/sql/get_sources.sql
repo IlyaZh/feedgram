@@ -10,8 +10,8 @@ SELETC
     deleted_at
 FROM feedgram.soures
 WHERE
-    ($1::BIGINT IS NULL OR id > $1) AND
-    ($2::BOOLEAN IS NULL OR is_active = $2) AND
+    (:id::BIGINT IS NULL OR id > :id) AND
+    (:is_active::TINYINT IS NULL OR is_active = :is_active) AND
     deleted_at IS NULL
 ORDER BY created_at ASC
-LIMIT $3
+LIMIT :limit

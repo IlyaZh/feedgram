@@ -7,7 +7,7 @@ telegram:
     timeout: 60
     allowed_chats_id:
         - -1001549464996
-postgres:
+mysql:
     host: '<secdist>'
     user: '<secdist>'
     password: '<secdist>'

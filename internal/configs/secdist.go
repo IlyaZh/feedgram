@@ -1,22 +1,23 @@
 package configs
 
 import (
-	"gopkg.in/yaml.v2"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type SecDist struct {
 	Telegram struct {
 		Token string `yaml:"token"`
 	} `yaml:"telegram""`
-	Postgres struct {
+	Mysql struct {
 		Host     string `yaml:"host"`
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
 		Port     int    `yaml:"port"`
 		Database string `yaml:"database"`
-	} `yaml:"postgres"`
+	} `yaml:"mysql"`
 }
 
 func NewSecDist(path string) SecDist {

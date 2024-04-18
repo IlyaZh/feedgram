@@ -23,3 +23,5 @@ go.work
 /deploy
 /configs/secdist.yaml
 /.idea/
+.env
+app
