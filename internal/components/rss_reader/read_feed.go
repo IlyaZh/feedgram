@@ -2,20 +2,31 @@ package rss_reader
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/labstack/gommon/log"
 	"github.com/mmcdole/gofeed"
 )
 
 func (c *Component) ReadFeed(ctx context.Context, link entities.Link) (entities.Feed, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 	fp := gofeed.NewParser()
-	link = entities.Link("http://feeds.twit.tv/twit.xml")
-	feed, _ := fp.ParseURLWithContext(string(link), ctx)
-	fmt.Printf("%v", feed)
+	feed, err := fp.ParseURLWithContext(string(link), ctx)
+	if err != nil {
+		log.Errorf("Error while parsing link \"%s\", error: %s", link, err.Error())
+		return entities.Feed{}, err
+	}
 
-	return entities.Feed{}, nil
+	parsedFeed := entities.Feed{
+		Title:       feed.Title,
+		Description: feed.Description,
+		Link:        feed.Link,
+		FeedLink:    feed.FeedLink,
+		UpdatedAt:   feed.UpdatedParsed,
+		Items:       transformItems(feed.Items),
+	}
+
+	return parsedFeed, nil
 }

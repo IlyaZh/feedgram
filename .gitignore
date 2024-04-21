@@ -23,5 +23,6 @@ go.work
 /deploy
 /configs/secdist.yaml
 /.idea/
+/.dbdata/
 .env
 app

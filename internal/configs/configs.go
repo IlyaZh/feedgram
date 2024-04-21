@@ -3,43 +3,11 @@ package configs
 import (
 	"time"
 
+	"github.com/IlyaZh/feedsgram/internal/consts"
+
 	"github.com/labstack/gommon/log"
 	"gopkg.in/yaml.v2"
 )
-
-type Config struct {
-	WebServer WebServer
-	Telegram  Telegram
-	Mysql     Mysql
-	RssReader RssReader
-}
-
-type Telegram struct {
-	Token          string
-	Limit          *int
-	Timeout        *int
-	AllowedChatIds map[int64]struct{}
-}
-
-type WebServer struct {
-	Port    int
-	Timeout time.Duration
-}
-
-type Mysql struct {
-	Host               *string `yaml:"host"`
-	User               string  `yaml:"user"`
-	Password           string  `yaml:"password"`
-	Port               *int    `yaml:"port"`
-	Database           string  `yaml:"database"`
-	MaxOpenConnections *int    `yaml:"max_open_connections"`
-	MaxIdleConnections *int    `yaml:"max_idle_connections"`
-	Limit              int     `yaml:"limit"`
-}
-
-type RssReader struct {
-	Timeout time.Duration
-}
 
 func (c *Config) Scan(v []byte, secdist SecDist) error {
 	var raw configRaw
@@ -58,8 +26,15 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 	for _, id := range raw.Telegram.AllowedChatIds {
 		allowedChatIds[id] = struct{}{}
 	}
+
+	useWebhook := false
+	if raw.Telegram.UseWebhook != nil {
+		useWebhook = *raw.Telegram.UseWebhook
+	}
+
 	c.Telegram = Telegram{
 		Token:          secdist.Telegram.Token,
+		UseWebhook:     useWebhook,
 		Limit:          raw.Telegram.Limit,
 		Timeout:        raw.Telegram.Timeout,
 		AllowedChatIds: allowedChatIds,
@@ -76,42 +51,20 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 		Limit:              raw.Mysql.Limit,
 	}
 
+	rssReaderBufferSize := consts.ChannelDefaultBufferSize
+	if raw.RssReader.BufferSize != nil {
+		rssReaderBufferSize = *raw.RssReader.BufferSize
+	}
+
 	c.RssReader = RssReader{
-		Timeout: time.Duration(raw.RssReader.Timeout) * time.Second,
+		Timeout:    time.Duration(raw.RssReader.Timeout) * time.Second,
+		BufferSize: rssReaderBufferSize,
+		PostsSettings: rssReaderPostsSettings{
+			NewFeeds: rssReaderPostsSettingsNewFeeds{
+				DaysInPast:      time.Duration(raw.RssReader.PostSettings.NewFeeds.DaysInPast*24) * time.Hour,
+				AtLeastOncePost: raw.RssReader.PostSettings.NewFeeds.AtLeastOncePost,
+			},
+		},
 	}
 	return nil
-}
-
-type configRaw struct {
-	WebServer webServerRaw `yaml:"web_server"`
-	Telegram  telegramRaw  `yaml:"telegram"`
-	Mysql     mysqlRaw     `yaml:"mysql"`
-	RssReader rssReaderRaw `yaml:"rss_reader"`
-}
-
-type webServerRaw struct {
-	Port    int `yaml:"port"`
-	Timeout int `yaml:"timeout"`
-}
-
-type telegramRaw struct {
-	Token          string  `yaml:"token"`
-	Limit          *int    `yaml:"limit"`
-	Timeout        *int    `yaml:"timeout"`
-	AllowedChatIds []int64 `yaml:"allowed_chats_id"`
-}
-
-type mysqlRaw struct {
-	Host               *string `yaml:"host"`
-	User               string  `yaml:"user"`
-	Password           string  `yaml:"password"`
-	Port               *int    `yaml:"port"`
-	Database           string  `yaml:"database"`
-	MaxOpenConnections *int    `yaml:"max_open_connections"`
-	MaxIdleConnections *int    `yaml:"max_idle_connections"`
-	Limit              int     `yaml:"limit"`
-}
-
-type rssReaderRaw struct {
-	Timeout int `yaml:"timeout"`
 }

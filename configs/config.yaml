@@ -3,10 +3,11 @@ web_server:
     timeout: 10
 telegram:
     token: '<secdist>'
+    use_webhook: false
     limit: 1
     timeout: 60
     allowed_chats_id:
-        - -1001549464996
+        - 70250337
 mysql:
     host: '<secdist>'
     user: '<secdist>'
@@ -19,3 +20,8 @@ mysql:
     limit: 10
 rss_reader:
     timeout: 3
+    buffer_size: 10
+    posts_settings:
+        new_feeds:
+            days_in_past: 7
+            at_least_once_post: true

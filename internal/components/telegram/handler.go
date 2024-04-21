@@ -3,28 +3,26 @@ package telegram
 import (
 	"context"
 	"log"
+
+	"github.com/IlyaZh/feedsgram/internal/entities"
 )
 
-func (c *Component) handler(ctx context.Context) {
+func (c *Component) handler(ctx context.Context, output chan<- entities.Message) {
 	for update := range c.updates {
 		if !c.messageFilter(&update) {
 			log.Println("message filtered")
 			continue
 		}
-		post := update.ChannelPost
+		post := *update.Message
 
 		links := parseLinks(post.Text)
 		if len(links) == 0 {
 			log.Println("links not found in message, skip")
 			continue
 		}
-		for _, link := range links {
-			_, err := c.rssReader.ReadFeed(ctx, link)
-			if err != nil {
-				log.Printf("Eror while read feed: %s. Error: %s\n", link, err.Error())
-				continue
-			}
-		}
 
+		for _, link := range links {
+			output <- entities.NewMessageLink(link)
+		}
 	}
 }

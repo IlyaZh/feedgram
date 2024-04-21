@@ -1,9 +1,11 @@
 package server
 
 import (
+	"context"
 	"fmt"
-	"github.com/IlyaZh/feedsgram/internal/caches/configs"
 	"log"
+
+	"github.com/IlyaZh/feedsgram/internal/caches/configs"
 
 	"github.com/IlyaZh/feedsgram/internal/controllers"
 	"github.com/IlyaZh/feedsgram/internal/generated/api"
@@ -34,18 +36,20 @@ func NewServer(configs *configs.Cache) *Server {
 	server.router.Use()
 
 	server.router.Use(middleware.OapiRequestValidator(swagger))
-	
+
 	api.RegisterHandlersWithOptions(server.router, controllers.NewPublicApi(), api.GinServerOptions{})
 
 	return server
 }
 
-func (s *Server) start() {
+func (s *Server) start(ctx context.Context) {
 	settings := s.configs.GetValues().WebServer
 	server.router.Run(fmt.Sprintf("localhost:%d", settings.Port))
 	log.Printf("Server starts at port: %d", settings.Port)
 }
 
-func (s *Server) Start() {
-	go s.start()
+func (s *Server) Start(ctx context.Context) {
+	log.Println("Server start")
+	go s.start(ctx)
+	log.Println("Server has started")
 }

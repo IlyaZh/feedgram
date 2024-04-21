@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+
 	"github.com/IlyaZh/feedsgram/internal/caches/configs"
 	"github.com/IlyaZh/feedsgram/internal/db"
 	dbDriver "github.com/IlyaZh/feedsgram/internal/db"
@@ -10,8 +11,8 @@ import (
 
 //go:generate mockgen -source component.go -package mocks -destination mock/component.go
 type Storage interface {
-	UpsertSource(ctx context.Context, source entities.Source) error
-	GetSource(ctx context.Context, id *int, isActive *bool, limit *int) ([]entities.Source, error)
+	UpsertSource(ctx context.Context, source entities.Source) (int64, error)
+	GetSource(ctx context.Context, id *int64, isActive *bool, limit *int) ([]entities.Source, error)
 	UpsertPost(ctx context.Context, post entities.Post) error
 	GetPosts(ctx context.Context, id *int, hasReaded *bool, limit *int) ([]entities.Post, error)
 }

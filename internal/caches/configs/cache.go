@@ -3,10 +3,11 @@ package configs
 import (
 	"context"
 	"fmt"
-	"github.com/IlyaZh/feedsgram/internal/utils"
 	"log"
 	"os"
 	"time"
+
+	"github.com/IlyaZh/feedsgram/internal/utils"
 
 	"github.com/IlyaZh/feedsgram/internal/configs"
 )
@@ -41,7 +42,7 @@ func (c *Cache) loadFromFilePeriodic(ctx context.Context) {
 	}
 }
 
-func NewCache(fileName string, period time.Duration) *Cache {
+func NewCache(ctx context.Context, fileName string, period time.Duration) *Cache {
 	if cache != nil {
 		return cache
 	}
@@ -51,7 +52,7 @@ func NewCache(fileName string, period time.Duration) *Cache {
 
 	cache.secDist = configs.NewSecDist(utils.MakePath(&prefix, "secdist.yaml"))
 
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(3*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(3*time.Second))
 	defer cancel()
 
 	go cache.loadFromFilePeriodic(ctx)

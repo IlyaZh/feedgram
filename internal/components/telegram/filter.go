@@ -6,11 +6,14 @@ import (
 )
 
 func (c *Component) messageFilter(msg *tgbotapi.Update) bool {
-	if msg == nil || msg.ChannelPost == nil {
+	if msg == nil || msg.Message == nil {
+		// log.Info("msh is nill or msg.ChannelPost is nil")
+		// postJson, _ := json.Marshal(msg)
+		// log.Infof("%s", postJson)
 		return false
 	}
 
-	post := *msg.ChannelPost
+	post := *msg.Message
 	settings := c.config.GetValues().Telegram
 
 	if len(settings.AllowedChatIds) > 0 {
