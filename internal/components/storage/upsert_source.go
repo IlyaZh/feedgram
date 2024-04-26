@@ -2,7 +2,8 @@ package storage
 
 import (
 	"context"
-	"log"
+
+	"github.com/labstack/gommon/log"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/queries"

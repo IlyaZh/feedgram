@@ -8,10 +8,4 @@ var (
 
 	//go:embed sql/upsert_source.sql
 	UpsertSources string
-
-	//go:embed sql/get_posts.sql
-	GetPosts string
-
-	//go:embed sql/upsert_posts.sql
-	UpsertPosts string
 )

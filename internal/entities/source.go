@@ -5,12 +5,13 @@ import "time"
 type Source struct {
 	Id           int64      `db:"id"`
 	URL          string     `db:"url"`
-	Title        *string    `db:"title"`
+	Title        *string    `db:"title,omitempty"`
 	Link         string     `db:"link"`
 	Description  string     `db:"description"`
 	IsActive     bool       `db:"is_active"`
+	LastPostLink *string    `db:"last_post_link,omitempty"`
+	LastPostedAt *time.Time `db:"last_posted_at,omitempty"`
 	CreatedAt    time.Time  `db:"created_at"`
-	UpdatedAt    *time.Time `db:"updated_at"`
-	DeletedAt    *time.Time `db:"deleted_at"`
-	LastPostedAt *time.Time `db:"last_posted_at"`
+	UpdatedAt    *time.Time `db:"updated_at,omitempty"`
+	DeletedAt    *time.Time `db:"deleted_at,omitempty"`
 }

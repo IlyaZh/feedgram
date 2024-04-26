@@ -7,13 +7,19 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/transformer"
 	"github.com/labstack/gommon/log"
+	"github.com/mmcdole/gofeed"
 )
 
 func (c *Component) handler_link(ctx context.Context, link entities.Link) {
 	feed, err := c.rss_reader.ReadFeed(ctx, link)
 	if err != nil {
-		log.Errorf("Error in handler_link: %s", err.Error())
-		panic(err)
+		if err == gofeed.ErrFeedTypeNotDetected {
+			log.Infof("Feed type is not detected. Skip")
+			return
+		} else {
+			log.Errorf("Error in handler_link: %s", err.Error())
+			panic(err)
+		}
 	}
 
 	id, err := c.storage.UpsertSource(ctx, transformer.Feed2Source(feed))

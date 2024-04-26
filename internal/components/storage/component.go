@@ -13,8 +13,6 @@ import (
 type Storage interface {
 	UpsertSource(ctx context.Context, source entities.Source) (int64, error)
 	GetSource(ctx context.Context, id *int64, isActive *bool, limit *int) ([]entities.Source, error)
-	UpsertPost(ctx context.Context, post entities.Post) error
-	GetPosts(ctx context.Context, id *int, hasReaded *bool, limit *int) ([]entities.Post, error)
 }
 
 // https://github.com/golang/mock

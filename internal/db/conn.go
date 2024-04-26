@@ -41,7 +41,7 @@ func CreateInstance(config *configs.Cache) *Db {
 		host = *settings.Host
 	}
 
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", settings.User, settings.Password, host, port, settings.Database)
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", settings.User, settings.Password, host, port, settings.Database)
 	db.dbx = sqlx.MustConnect("mysql", connectionString)
 
 	maxOpenConnections := defaultMaxOpenConnections

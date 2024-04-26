@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -15,7 +14,6 @@ func (c *Component) ReadFeed(ctx context.Context, link entities.Link) (entities.
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURLWithContext(string(link), ctx)
 	if err != nil {
-		log.Errorf("Error while parsing link \"%s\", error: %s", link, err.Error())
 		return entities.Feed{}, err
 	}
 

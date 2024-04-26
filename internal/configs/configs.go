@@ -17,11 +17,6 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 		return err
 	}
 
-	c.WebServer = WebServer{
-		Port:    raw.WebServer.Port,
-		Timeout: time.Duration(raw.WebServer.Timeout) * time.Second,
-	}
-
 	allowedChatIds := make(map[int64]struct{})
 	for _, id := range raw.Telegram.AllowedChatIds {
 		allowedChatIds[id] = struct{}{}

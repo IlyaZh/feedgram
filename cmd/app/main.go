@@ -9,9 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	globalstate "github.com/IlyaZh/feedsgram/internal/components/global_state"
 	"github.com/IlyaZh/feedsgram/internal/components/message_dispatcher"
-	"github.com/IlyaZh/feedsgram/internal/components/server"
 	"github.com/IlyaZh/feedsgram/internal/components/storage"
 	"github.com/IlyaZh/feedsgram/internal/db"
 	"github.com/IlyaZh/feedsgram/internal/entities"
@@ -40,7 +38,6 @@ func main() {
 	log.SetFlags(log.Llongfile | log.LUTC | log.LstdFlags | log.Ldate | log.Ltime)
 	log.Println("Service initialization start")
 
-	globalState := globalstate.NewGlobalState()
 	configsCache := config.NewCache(ctx, "config.yaml", time.Duration(1*time.Second))
 	log.Println("Service initialization has finished")
 	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
@@ -48,11 +45,6 @@ func main() {
 
 	messageBuffer := make(chan entities.Message, configsCache.GetValues().RssReader.BufferSize)
 	telegram.Start(ctx, messageBuffer)
-
-	server := server.NewServer(configsCache)
-	server.Start(ctx)
-
-	globalState.SetFailed(false)
 
 	dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
 	dispatcher.Start(ctx)

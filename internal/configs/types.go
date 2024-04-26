@@ -3,14 +3,12 @@ package configs
 import "time"
 
 type Config struct {
-	WebServer WebServer
 	Telegram  Telegram
 	Mysql     Mysql
 	RssReader RssReader
 }
 
 type configRaw struct {
-	WebServer webServerRaw `yaml:"web_server"`
 	Telegram  telegramRaw  `yaml:"telegram"`
 	Mysql     mysqlRaw     `yaml:"mysql"`
 	RssReader rssReaderRaw `yaml:"rss_reader"`
@@ -30,16 +28,6 @@ type telegramRaw struct {
 	Limit          *int    `yaml:"limit"`
 	Timeout        *int    `yaml:"timeout"`
 	AllowedChatIds []int64 `yaml:"allowed_chats_id"`
-}
-
-type WebServer struct {
-	Port    int
-	Timeout time.Duration
-}
-
-type webServerRaw struct {
-	Port    int `yaml:"port"`
-	Timeout int `yaml:"timeout"`
 }
 
 type Mysql struct {

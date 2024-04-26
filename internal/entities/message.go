@@ -5,6 +5,7 @@ type MessageType int
 const (
 	MESSAGE_TYPE_RAW MessageType = iota
 	MESSAGE_TYPE_LINK
+	MESSAGE_TYPE_POST
 )
 
 type Message struct {

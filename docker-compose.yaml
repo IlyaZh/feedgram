@@ -1,6 +1,20 @@
 version: '3.1'
 
 services:
+  # feedgram:
+  #   restart: always
+  #   build: 
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - ./.env
+  #   volumes:
+  #     - ./configs:/app/configs
+  #   networks:
+  #     - db
+    
 
   db:
     image: mariadb:11.3
@@ -12,9 +26,17 @@ services:
     volumes:
       - ./migrations:/docker-entrypoint-initdb.d
       - ./.dbdata:/var/lib/mysql:Z
+    networks:
+      - db
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - db
+
+networks:
+  db:
+    driver: bridge
