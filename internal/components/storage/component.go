@@ -12,7 +12,8 @@ import (
 //go:generate mockgen -source component.go -package mocks -destination mock/component.go
 type Storage interface {
 	UpsertSource(ctx context.Context, source entities.Source) (int64, error)
-	GetSource(ctx context.Context, id *int64, isActive *bool, limit *int) ([]entities.Source, error)
+	GetSources(ctx context.Context, id *int64, isActive *bool, limit *int) ([]entities.Source, bool, error)
+	UpdateSources(ctx context.Context, sources []entities.UpdateSource) error
 }
 
 // https://github.com/golang/mock

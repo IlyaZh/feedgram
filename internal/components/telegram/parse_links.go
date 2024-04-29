@@ -6,8 +6,8 @@ import (
 )
 
 func parseLinks(msg string) []entities.Link {
-	links := make([]entities.Link, 0)
 	parsedLinks := xurls.Strict().FindAllString(msg, -1)
+	links := make([]entities.Link, 0, len(parsedLinks))
 	for _, parsedLink := range parsedLinks {
 		links = append(links, entities.Link(parsedLink))
 	}

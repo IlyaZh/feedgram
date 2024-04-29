@@ -55,11 +55,32 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 		Timeout:    time.Duration(raw.RssReader.Timeout) * time.Second,
 		BufferSize: rssReaderBufferSize,
 		PostsSettings: rssReaderPostsSettings{
+			MaxPostsPerFeed: raw.RssReader.PostSettings.MaxPostsPerFeed,
 			NewFeeds: rssReaderPostsSettingsNewFeeds{
-				DaysInPast:      time.Duration(raw.RssReader.PostSettings.NewFeeds.DaysInPast*24) * time.Hour,
 				AtLeastOncePost: raw.RssReader.PostSettings.NewFeeds.AtLeastOncePost,
 			},
 		},
 	}
+
+	newsCheckerBufferSize := consts.ChannelDefaultBufferSize
+	if raw.NewsChecker.BufferSize != nil {
+		newsCheckerBufferSize = *raw.NewsChecker.BufferSize
+	}
+	c.NewsChecker = NewsChecker{
+		Period:     time.Duration(raw.NewsChecker.PeriodMin) * time.Minute,
+		BufferSize: newsCheckerBufferSize,
+		Timeout:    time.Duration(raw.NewsChecker.TimeoutMs) * time.Millisecond,
+		ChunkSize:  raw.NewsChecker.ChunkSize,
+	}
+
+	c.Formatter = make(Formatter)
+	for k, v := range raw.FormatterRaw {
+		c.Formatter[k] = FormatterItem{
+			Header: v.Header,
+			Loop:   v.Loop,
+			Footer: v.Footer,
+		}
+	}
+
 	return nil
 }

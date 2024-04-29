@@ -1,5 +1,7 @@
 CREATE DATABASE IF NOT EXISTS feedgram;
 
+USE feedgram;
+
 CREATE TABLE `sources` (
   `id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `url` text NOT NULL,

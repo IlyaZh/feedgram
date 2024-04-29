@@ -19,6 +19,24 @@ rss_reader:
     timeout: 3
     buffer_size: 10
     posts_settings:
+        max_post_per_feed: 3
         new_feeds:
-            days_in_past: 7
             at_least_once_post: true
+news_checker:
+    # period_min: 600
+    period_min: 1
+    timeout_ms: 10000
+    buffer_size: 10
+    chunk_size: 100
+formatter:
+    feed_post: 
+        header: |
+            <i>Новые посты</i>
+            <br>
+        loop: |
+            <b>{{title}}</b>
+            <a href="{{link}}">читать</a>
+            <p>{{description}}</p>
+            <br>
+        footer:  |
+            <br> Обновлено {{publish_date}}

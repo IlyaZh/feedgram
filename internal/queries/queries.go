@@ -8,4 +8,7 @@ var (
 
 	//go:embed sql/upsert_source.sql
 	UpsertSources string
+
+	//go:embed sql/update_sources.sql
+	UpdateSources string
 )

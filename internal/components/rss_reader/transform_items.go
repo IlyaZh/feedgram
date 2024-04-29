@@ -5,24 +5,18 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func transformItems(rawItems []*gofeed.Item) []entities.FeedItem {
-	items := make([]entities.FeedItem, 0, len(rawItems))
+func transformItem(rawItem *gofeed.Item) entities.FeedItem {
 
-	for _, rawItem := range rawItems {
-		var image *string
-		if rawItem.Image != nil {
-			image = &rawItem.Image.URL
-		}
-		item := entities.FeedItem{
-			Title:       rawItem.Title,
-			Description: rawItem.Description,
-			Content:     rawItem.Content,
-			Link:        rawItem.Link,
-			ImageURL:    image,
-			PublishedAt: rawItem.PublishedParsed,
-		}
-		items = append(items, item)
+	var image *string
+	if rawItem.Image != nil {
+		image = &rawItem.Image.URL
 	}
-
-	return items
+	return entities.FeedItem{
+		Title:       rawItem.Title,
+		Description: rawItem.Description,
+		Content:     rawItem.Content,
+		Link:        entities.Link(rawItem.Link),
+		ImageURL:    image,
+		PublishedAt: rawItem.PublishedParsed,
+	}
 }

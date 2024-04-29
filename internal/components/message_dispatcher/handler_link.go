@@ -11,7 +11,8 @@ import (
 )
 
 func (c *Component) handler_link(ctx context.Context, link entities.Link) {
-	feed, err := c.rss_reader.ReadFeed(ctx, link)
+	now := time.Now()
+	feed, err := c.rss_reader.ReadFeed(ctx, link, &now, nil)
 	if err != nil {
 		if err == gofeed.ErrFeedTypeNotDetected {
 			log.Infof("Feed type is not detected. Skip")
@@ -22,43 +23,11 @@ func (c *Component) handler_link(ctx context.Context, link entities.Link) {
 		}
 	}
 
-	id, err := c.storage.UpsertSource(ctx, transformer.Feed2Source(feed))
+	feed.Link = link // because sometimes there is a wrong (maybe old) URL at feed
+	_, err = c.storage.UpsertSource(ctx, transformer.Feed2Source(feed))
 	if err != nil {
 		log.Errorf("Error while upserting source: %s", err.Error())
 		panic(err)
-	}
-
-	config := c.configs.GetValues().RssReader
-
-	startTimepoint := time.Now().Add(-config.PostsSettings.NewFeeds.DaysInPast)
-	sources, err := c.storage.GetSource(ctx, &id, nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	if len(sources) != 1 {
-		log.Errorf("Returned unexpected number of results. Expexted 1, returned %d", len(sources))
-		panic(ErrUnexpectedResult)
-	}
-	source := sources[0]
-	if source.LastPostedAt != nil {
-		startTimepoint = *source.LastPostedAt
-	}
-	if len(feed.Items) == 0 {
-		log.Infof("No posts in feed: id = %d, link = %s", id, feed.Link)
-		return
-	}
-	posts := make([]entities.FeedItem, 0, len(feed.Items))
-	for _, post := range feed.Items {
-		if post.PublishedAt == nil {
-			posts = append(posts, post)
-			break
-		}
-		if post.PublishedAt.After(startTimepoint) {
-			posts = append(posts, post)
-		}
-	}
-	if len(posts) == 0 && config.PostsSettings.NewFeeds.AtLeastOncePost {
-		posts = append(posts, feed.Items[0])
 	}
 
 }

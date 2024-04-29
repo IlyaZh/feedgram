@@ -12,7 +12,7 @@ import (
 // https://github.com/go-telegram-bot-api/telegram-bot-api
 
 type Telegram interface {
-	GetLinksChannel() <-chan entities.Link
+	Start(ctx context.Context, output chan<- entities.Message)
 }
 
 type Component struct {
@@ -24,8 +24,8 @@ type Component struct {
 	updates tgbotapi.UpdatesChannel
 }
 
-func NewTelegram(config *configs.Cache, isDebug bool) Component {
-	return Component{
+func NewTelegram(config *configs.Cache, isDebug bool) Telegram {
+	return &Component{
 		token:   config.GetValues().Telegram.Token,
 		config:  config,
 		offset:  0,

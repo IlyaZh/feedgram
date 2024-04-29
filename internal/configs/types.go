@@ -3,15 +3,19 @@ package configs
 import "time"
 
 type Config struct {
-	Telegram  Telegram
-	Mysql     Mysql
-	RssReader RssReader
+	Telegram    Telegram
+	Mysql       Mysql
+	RssReader   RssReader
+	NewsChecker NewsChecker
+	Formatter   Formatter
 }
 
 type configRaw struct {
-	Telegram  telegramRaw  `yaml:"telegram"`
-	Mysql     mysqlRaw     `yaml:"mysql"`
-	RssReader rssReaderRaw `yaml:"rss_reader"`
+	Telegram     telegramRaw    `yaml:"telegram"`
+	Mysql        mysqlRaw       `yaml:"mysql"`
+	RssReader    rssReaderRaw   `yaml:"rss_reader"`
+	NewsChecker  newsCheckerRaw `yaml:"news_checker"`
+	FormatterRaw formatterRaw   `yaml:"formatter"`
 }
 
 type Telegram struct {
@@ -65,19 +69,49 @@ type rssReaderRaw struct {
 }
 
 type rssReaderPostsSettingsRaw struct {
-	NewFeeds rssReaderPostsSettingsNewFeedsRaw `json:"new_feeds"`
+	MaxPostsPerFeed int                               `yaml:"max_post_per_feed"`
+	NewFeeds        rssReaderPostsSettingsNewFeedsRaw `yaml:"new_feeds"`
 }
 
 type rssReaderPostsSettings struct {
-	NewFeeds rssReaderPostsSettingsNewFeeds
+	MaxPostsPerFeed int
+	NewFeeds        rssReaderPostsSettingsNewFeeds
 }
 
 type rssReaderPostsSettingsNewFeedsRaw struct {
-	DaysInPast      int  `yaml:"days_in_past"`
 	AtLeastOncePost bool `yaml:"at_least_once_post"`
 }
 
 type rssReaderPostsSettingsNewFeeds struct {
-	DaysInPast      time.Duration
 	AtLeastOncePost bool
+}
+
+type newsCheckerRaw struct {
+	PeriodMin  int64 `yaml:"period_min"`
+	BufferSize *int  `yaml:"buffer_size,omitempty"`
+	TimeoutMs  int64 `yaml:"timeout_ms"`
+	ChunkSize  int   `yaml:"chunk_size"`
+}
+
+type NewsChecker struct {
+	Period     time.Duration
+	BufferSize int
+	Timeout    time.Duration
+	ChunkSize  int
+}
+
+type formatterRaw map[string]formatterItemRaw
+
+type Formatter map[string]FormatterItem
+
+type formatterItemRaw struct {
+	Header string  `yaml:"header"`
+	Loop   string  `yaml:"loop"`
+	Footer *string `yaml:"footer,omitempty"`
+}
+
+type FormatterItem struct {
+	Header string
+	Loop   string
+	Footer *string
 }
