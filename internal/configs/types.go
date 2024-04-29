@@ -20,18 +20,22 @@ type configRaw struct {
 
 type Telegram struct {
 	Token          string
+	BotID          int64
 	UseWebhook     bool
 	Limit          *int
 	Timeout        *int
 	AllowedChatIds map[int64]struct{}
+	ChatForFeed    int64
 }
 
 type telegramRaw struct {
 	Token          string  `yaml:"token"`
+	BotID          int64   `yaml:"bot_id"`
 	UseWebhook     *bool   `yaml:"use_webhool"`
 	Limit          *int    `yaml:"limit"`
 	Timeout        *int    `yaml:"timeout"`
 	AllowedChatIds []int64 `yaml:"allowed_chats_id"`
+	ChatForFeed    int64   `yaml:"chat_for_feed"`
 }
 
 type Mysql struct {

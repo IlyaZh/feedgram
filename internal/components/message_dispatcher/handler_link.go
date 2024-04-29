@@ -19,7 +19,6 @@ func (c *Component) handler_link(ctx context.Context, link entities.Link) {
 			return
 		} else {
 			log.Errorf("Error in handler_link: %s", err.Error())
-			panic(err)
 		}
 	}
 
@@ -27,7 +26,6 @@ func (c *Component) handler_link(ctx context.Context, link entities.Link) {
 	_, err = c.storage.UpsertSource(ctx, transformer.Feed2Source(feed))
 	if err != nil {
 		log.Errorf("Error while upserting source: %s", err.Error())
-		panic(err)
 	}
 
 }

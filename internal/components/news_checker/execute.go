@@ -3,6 +3,7 @@ package news_checker
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/labstack/gommon/log"
@@ -75,17 +76,14 @@ func (c *Component) Execute() {
 		wgRead.Wait()
 
 		// get responses from responsesChannel
+		now := time.Now()
 		updatedFeeds := make([]entities.UpdateSource, 0, len(respones))
 		for _, response := range respones {
 			updatedFeeds = append(updatedFeeds, entities.UpdateSource{
 				Id:           response.Id,
 				LastPostLink: response.Link,
 				LastPostedAt: response.PublishedAt,
-			})
-			log.Infof("Updated response: %v", entities.UpdateSource{
-				Id:           response.Id,
-				LastPostLink: response.Link,
-				LastPostedAt: response.PublishedAt,
+				LastSyncAt:   &now,
 			})
 			posts = append(posts, response.FeedItem)
 		}
@@ -99,6 +97,7 @@ func (c *Component) Execute() {
 			return
 		}
 	}
-
-	c.out <- posts
+	if len(posts) > 0 {
+		c.out <- posts
+	}
 }

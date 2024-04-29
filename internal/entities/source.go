@@ -22,4 +22,5 @@ type UpdateSource struct {
 	Id           int64      `db:"id"`
 	LastPostLink Link       `db:"last_post_link"`
 	LastPostedAt *time.Time `db:"last_posted_at,omitempty"`
+	LastSyncAt   *time.Time `db:"last_sync_at,omitempty"`
 }

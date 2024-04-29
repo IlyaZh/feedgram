@@ -6,14 +6,19 @@ import (
 )
 
 func (c *Component) messageFilter(msg *tgbotapi.Update) bool {
-	if msg == nil || msg.Message == nil {
-		// log.Info("msh is nill or msg.ChannelPost is nil")
-		// postJson, _ := json.Marshal(msg)
-		// log.Infof("%s", postJson)
+	if msg == nil || (msg.Message == nil && msg.ChannelPost == nil) {
 		return false
 	}
 
-	post := *msg.Message
+	var post tgbotapi.Message
+	if msg.Message != nil {
+		post = *msg.Message
+	} else if msg.ChannelPost != nil {
+		post = *msg.ChannelPost
+	} else {
+		log.Error("undefined type of post, skip")
+		return false
+	}
 	settings := c.config.GetValues().Telegram
 
 	if len(settings.AllowedChatIds) > 0 {

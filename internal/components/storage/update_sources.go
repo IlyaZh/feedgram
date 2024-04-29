@@ -9,10 +9,16 @@ import (
 )
 
 func (c *Component) UpdateSources(ctx context.Context, sources []entities.UpdateSource) error {
-	_, err := c.db.Pool().NamedExecContext(ctx, queries.UpdateSources, sources)
+	stmt, err := c.db.Pool().PrepareNamedContext(ctx, queries.UpdateSource)
 	if err != nil {
-		log.Errorf("Error wile prepare statement in update sources method. Error: %s", err.Error())
+		log.Errorf("Error while prepare statement in update sources method. Error: %s", err.Error())
 		return err
+	}
+	for _, source := range sources {
+		_, err := stmt.ExecContext(ctx, source)
+		if err != nil {
+			log.Errorf("Error while execute statement in update sources method. Error: %s", err.Error())
+		}
 	}
 	return nil
 }

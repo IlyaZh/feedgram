@@ -6,6 +6,7 @@ import (
 
 	"github.com/IlyaZh/feedsgram/internal/caches/configs"
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/utils"
 )
 
 type RssReader interface {
@@ -13,11 +14,13 @@ type RssReader interface {
 }
 
 type Component struct {
-	config configs.ConfigsCache
+	config    configs.ConfigsCache
+	sanitizer utils.Sanitizer
 }
 
 func NewRssReader(configsCache configs.ConfigsCache) *Component {
 	return &Component{
-		config: configsCache,
+		config:    configsCache,
+		sanitizer: utils.NewSanitizer(),
 	}
 }

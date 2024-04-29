@@ -1,10 +1,13 @@
 telegram:
     token: '<secdist>'
+    bot_id: 42
     use_webhook: false
     limit: 1
     timeout: 60
     allowed_chats_id:
         - 70250337
+        - -1001549464996
+    chat_for_feed: -1001549464996
 mysql:
     host: '<secdist>'
     user: '<secdist>'
@@ -31,12 +34,11 @@ news_checker:
 formatter:
     feed_post: 
         header: |
-            <i>Новые посты</i>
-            <br>
+            <b>Новые посты</b>
         loop: |
-            <b>{{title}}</b>
-            <a href="{{link}}">читать</a>
-            <p>{{description}}</p>
-            <br>
+            {{number}}. <a href="{{link}}">{{title}}</a>
+            <i>Опубликовано: {{published_at}} (UTC)</i>
+            <b>Описание:</b> {{description}}
+             
         footer:  |
-            <br> Обновлено {{publish_date}}
+            Обновлено {{now}} (UTC)

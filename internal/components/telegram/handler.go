@@ -2,22 +2,28 @@ package telegram
 
 import (
 	"context"
-	"log"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/labstack/gommon/log"
 )
 
 func (c *Component) handler(ctx context.Context, output chan<- entities.Message) {
 	for update := range c.updates {
 		if !c.messageFilter(&update) {
-			log.Println("message filtered")
+			log.Info("message filtered")
 			continue
 		}
-		post := *update.Message
+		var post tgbotapi.Message
+		if update.Message != nil {
+			post = *update.Message
+		} else if update.ChannelPost != nil {
+			post = *update.ChannelPost
+		}
 
 		links := parseLinks(post.Text)
 		if len(links) == 0 {
-			log.Println("links not found in message, skip")
+			log.Info("links not found in message, skip")
 			continue
 		}
 

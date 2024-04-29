@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/labstack/gommon/log"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -17,6 +18,16 @@ func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan 
 	if err != nil {
 		return entities.Feed{}, err
 	}
+
+	dNewerThan := "nil"
+	dLastPostLink := "nil"
+	if newerThan != nil {
+		dNewerThan = newerThan.Format(time.DateTime)
+	}
+	if lastPostLink != nil {
+		dLastPostLink = *lastPostLink
+	}
+	log.Debugf("newerThan = %s, lastPostLink = %s", dNewerThan, dLastPostLink)
 
 	items := make([]entities.FeedItem, 0, len(feed.Items))
 	config := c.config.GetValues().RssReader
@@ -36,7 +47,7 @@ func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan 
 		if lastPostLink == nil && newerThan == nil && config.PostsSettings.NewFeeds.AtLeastOncePost && hasOnePost {
 			break
 		}
-		items = append(items, transformItem(item))
+		items = append(items, transformItem(c.sanitizer, item))
 	}
 
 	parsedFeed := entities.Feed{

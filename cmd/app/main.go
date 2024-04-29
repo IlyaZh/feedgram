@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/components/message_dispatcher"
+	"github.com/IlyaZh/feedsgram/internal/components/message_sender"
 	"github.com/IlyaZh/feedsgram/internal/components/news_checker"
 	"github.com/IlyaZh/feedsgram/internal/components/storage"
 	"github.com/IlyaZh/feedsgram/internal/consts"
@@ -41,15 +42,16 @@ func wait() {
 func main() {
 	ctx := context.TODO()
 
-	log.Info("Service initialization start")
 	log.SetPrefix(consts.ServiceName)
+	log.Info("Service initialization start")
+
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
 	if workEnv == consts.EnvironmentDebug {
 		log.SetLevel(log.DEBUG)
 	}
 
 	secdistPathArg := flag.String("secdist", "configs/secdist.yaml", "Set a path to secdist file relaive root dir. E.g. \"configs/secdist.yaml\"")
-	configPathArg := flag.String("config", "configs/config.yaml", "Set a path to config file relaive to ./configs/ dir. E.g. \"configs/config.yaml\"")
+	configPathArg := flag.String("config", "configs/config.yaml", "Set a path to config file relaive to root dir. E.g. \"configs/config.yaml\"")
 	flag.Parse()
 
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(1*time.Second))
@@ -68,6 +70,9 @@ func main() {
 	newsChecker := news_checker.NewNewsChecker(configsCache, feedsChannel, storage)
 	newsCheckerPeriodc := utils.NewPeriodic("news checker", newsChecker)
 	newsCheckerPeriodc.Start(ctx)
+
+	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel)
+	sender.Start(ctx)
 
 	log.Info("Service initialization has finished")
 

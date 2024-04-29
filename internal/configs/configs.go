@@ -29,10 +29,12 @@ func (c *Config) Scan(v []byte, secdist SecDist) error {
 
 	c.Telegram = Telegram{
 		Token:          secdist.Telegram.Token,
+		BotID:          raw.Telegram.BotID,
 		UseWebhook:     useWebhook,
 		Limit:          raw.Telegram.Limit,
 		Timeout:        raw.Telegram.Timeout,
 		AllowedChatIds: allowedChatIds,
+		ChatForFeed:    raw.Telegram.ChatForFeed,
 	}
 
 	c.Mysql = Mysql{

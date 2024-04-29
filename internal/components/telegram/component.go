@@ -13,6 +13,7 @@ import (
 
 type Telegram interface {
 	Start(ctx context.Context, output chan<- entities.Message)
+	PostMessageHTML(ctx context.Context, message string) error
 }
 
 type Component struct {
