@@ -50,6 +50,13 @@ func main() {
 		log.SetLevel(log.DEBUG)
 	}
 
+	defer func() {
+		if r := recover(); r != nil {
+			log.Errorf("panic occured: %s", r)
+			panic(r)
+		}
+	}()
+
 	secdistPathArg := flag.String("secdist", "configs/secdist.yaml", "Set a path to secdist file relaive root dir. E.g. \"configs/secdist.yaml\"")
 	configPathArg := flag.String("config", "configs/config.yaml", "Set a path to config file relaive to root dir. E.g. \"configs/config.yaml\"")
 	flag.Parse()

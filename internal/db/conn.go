@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/IlyaZh/feedsgram/internal/caches/configs"
+	"github.com/labstack/gommon/log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -42,7 +43,9 @@ func CreateInstance(config *configs.Cache) *Db {
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", settings.User, settings.Password, host, port, settings.Database)
+	log.Infof("Trying to connect to db='%s', at host '%s', port = %d, with user '%s'", settings.Database, host, port, settings.User)
 	db.dbx = sqlx.MustConnect("mysql", connectionString)
+	log.Info("DB connect is OK")
 
 	maxOpenConnections := defaultMaxOpenConnections
 	if settings.MaxOpenConnections != nil {

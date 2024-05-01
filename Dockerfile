@@ -10,4 +10,4 @@ RUN go mod download
 COPY ./ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -C ./cmd/app -o /deploy
 
-CMD ["/deploy -secdist=conigs/secdist.yaml -config=configs/config.yaml"]
+CMD ["/deploy", "--secdist=configs/secdist.yaml", "--config=configs/config.yaml"]
