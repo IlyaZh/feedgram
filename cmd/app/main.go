@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 
 	"os"
 	"os/signal"
@@ -31,9 +30,7 @@ func wait() {
 
 	go func() {
 		sig := <-sigs
-		fmt.Println()
-		fmt.Printf("Signal recevied %d", sig)
-		fmt.Println()
+		log.Printf("OS Signal recevied %d", sig)
 		done <- true
 	}()
 	<-done
@@ -46,7 +43,8 @@ func main() {
 	log.Info("Service initialization start")
 
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
-	if workEnv == consts.EnvironmentDebug {
+	isDebug := workEnv == consts.EnvironmentDebug
+	if isDebug {
 		log.SetLevel(log.DEBUG)
 	}
 
@@ -64,10 +62,10 @@ func main() {
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
 	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
-	telegram := telegram.NewTelegram(configsCache, true)
+	telegram := telegram.NewTelegram(configsCache, isDebug)
 
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
-	telegram.Start(ctx, messageBuffer)
+	// telegram.Start(ctx, messageBuffer)
 
 	dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
 	dispatcher.Start(ctx)
