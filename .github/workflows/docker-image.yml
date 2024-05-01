@@ -19,16 +19,9 @@ jobs:
       with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ilyazh/feedgram:${{ github.run_number }}
     - name: Build the Docker image with latest tag
       run: docker build . --file Dockerfile --tag ilyazh/feedgram:latest
-    - name: Push versionated image
-      uses: docker/build-push-action@v4
-      with:
-          push: true
-          tags: ilyazh/feedgram::${{ github.run_number }}
-    - name: Push latest image
+    - name: Push the image
       uses: docker/build-push-action@v4
       with:
           push: true
