@@ -1,0 +1,44 @@
+telegram:
+    token: '<secdist>'
+    bot_id: 42
+    use_webhook: false
+    limit: 1
+    timeout: 60
+    allowed_chats_id:
+        - 70250337
+        - -1001549464996
+    chat_for_feed: -1001549464996
+mysql:
+    host: '<secdist>'
+    user: '<secdist>'
+    password: '<secdist>'
+    port: 0
+    database: '<secdist>'
+    sslmode: disable
+    max_open_connections: 5
+    max_idle_connections: 2
+    limit: 10
+rss_reader:
+    timeout: 3
+    buffer_size: 10
+    posts_settings:
+        max_post_per_feed: 3
+        new_feeds:
+            at_least_once_post: true
+news_checker:
+    # period_min: 600
+    period_min: 1
+    timeout_ms: 10000
+    buffer_size: 10
+    chunk_size: 100
+formatter:
+    feed_post: 
+        header: |
+            <b>Новые посты</b>
+        loop: |
+            {{number}}. <a href="{{link}}">{{title}}</a>
+            <i>Опубликовано: {{published_at}} (UTC)</i>
+            <b>Описание:</b> {{description}}
+             
+        footer:  |
+            Обновлено {{now}} (UTC)
