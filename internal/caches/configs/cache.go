@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+//go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type ConfigsCache interface {
 	GetValues() configs.Config
 }

@@ -11,6 +11,7 @@ import (
 
 // https://github.com/go-telegram-bot-api/telegram-bot-api
 
+//go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type Telegram interface {
 	Start(ctx context.Context, output chan<- entities.Message)
 	PostMessageHTML(ctx context.Context, message string) error

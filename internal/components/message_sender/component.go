@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+//go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type MeesageSender interface {
 	Start(ctx context.Context)
 }
