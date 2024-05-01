@@ -18,7 +18,7 @@ CREATE TABLE `sources` (
 ) ENGINE='InnoDB';
 
 ALTER TABLE `sources`
-ADD UNIQUE `url` (`url`),
+ADD UNIQUE `url` (`url`(512)),
 ADD INDEX `is_active` (`is_active`),
 ADD INDEX `last_posted_at` (`last_posted_at`),
 ADD INDEX `created_at` (`created_at`),
