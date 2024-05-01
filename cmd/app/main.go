@@ -61,7 +61,7 @@ func main() {
 	configPathArg := flag.String("config", "configs/config.yaml", "Set a path to config file relaive to root dir. E.g. \"configs/config.yaml\"")
 	flag.Parse()
 
-	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(1*time.Second))
+	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
 	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
 	telegram := telegram.NewTelegram(configsCache, true)
