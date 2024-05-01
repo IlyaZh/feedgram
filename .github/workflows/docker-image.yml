@@ -20,6 +20,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ilyazh/feedgram:${{ github.event.release.tag_name }
+      run: docker build . --file Dockerfile --tag ilyazh/feedgram:${{ github.run_number }}
     - name: Build the Docker image with latest tag
       run: docker build . --file Dockerfile --tag ilyazh/feedgram:latest
