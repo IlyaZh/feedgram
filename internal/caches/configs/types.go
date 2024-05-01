@@ -1,15 +1,16 @@
 package configs
 
 import (
-	"github.com/IlyaZh/feedsgram/internal/configs"
-	"sync/atomic"
+	"sync"
 	"time"
+
+	"github.com/IlyaZh/feedsgram/internal/configs"
 )
 
 type Cache struct {
-	value    atomic.Pointer[configs.Config]
+	value    configs.Config
+	mtx      sync.RWMutex
 	secDist  configs.SecDist
 	filePath string
 	period   time.Duration
-	init     bool
 }
