@@ -20,7 +20,7 @@ type Component struct {
 	out     chan<- []entities.FeedItem
 }
 
-func NewNewsChecker(config config.ConfigsCache, outChannel chan<- []entities.FeedItem, storage storage.Storage) NewsChecker {
+func NewNewsChecker(config config.ConfigsCache, outChannel chan<- []entities.FeedItem, storage storage.Storage) *Component {
 	return &Component{
 		config:  config,
 		storage: storage,

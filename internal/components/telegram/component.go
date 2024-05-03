@@ -26,7 +26,7 @@ type Component struct {
 	updates tgbotapi.UpdatesChannel
 }
 
-func NewTelegram(config *configs.Cache, isDebug bool) Telegram {
+func NewTelegram(config *configs.Cache, isDebug bool) *Component {
 	return &Component{
 		token:   config.GetValues().Telegram.Token,
 		config:  config,

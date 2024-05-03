@@ -65,7 +65,7 @@ func main() {
 	telegram := telegram.NewTelegram(configsCache, isDebug)
 
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
-	// telegram.Start(ctx, messageBuffer)
+	telegram.Start(ctx, messageBuffer)
 
 	dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
 	dispatcher.Start(ctx)
