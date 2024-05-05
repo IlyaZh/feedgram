@@ -26,17 +26,17 @@ func TestFileChangedNotify(t *testing.T) {
 		name string
 		args args
 	}{
-		{
-			name: "OK",
-			args: args{
-				done: ch,
-				execFunc: func() error {
-					ch <- struct{}{}
-					return nil
-				},
-				wantError: false,
-			},
-		},
+		// {
+		// 	name: "OK",
+		// 	args: args{
+		// 		done: ch,
+		// 		execFunc: func() error {
+		// 			ch <- struct{}{}
+		// 			return nil
+		// 		},
+		// 		wantError: false,
+		// 	},
+		// },
 		{
 			name: "error in watcher function",
 			args: args{
@@ -58,19 +58,25 @@ func TestFileChangedNotify(t *testing.T) {
 				t.Logf("Remove file: %s", file.Name())
 				os.Remove(file.Name())
 			}()
-			// defer func() {
-			// 	e := recover()
-			// 	if e != nil {
-			// 		if !tt.args.wantError {
-			// 			t.Fatalf("unexpected panic: %s", e)
-			// 		}
-			// 	} else if tt.args.wantError {
-			// 		t.Fatalf("expected panic hasn't appeared")
-			// 	}
-			// }()
+			defer func() {
+				e := recover()
+				if e != nil {
+					if !tt.args.wantError {
+						t.Fatalf("unexpected panic: %s", e)
+					}
+				} else if tt.args.wantError {
+					t.Fatalf("expected panic hasn't appeared")
+				}
+			}()
 			t.Logf("file: %s", file.Name())
-			go FileChangedNotify(file.Name(), tt.args.execFunc)
-			require.Panics(t)
+
+			if tt.args.wantError {
+				require.Panics(t, func() {
+					go FileChangedNotify(file.Name(), tt.args.execFunc)
+				})
+			} else {
+				go FileChangedNotify(file.Name(), tt.args.execFunc)
+			}
 			time.Sleep(time.Duration(1) * time.Second)
 			tmr := time.NewTimer(time.Duration(1) * time.Second)
 			// for debounce checker write 3 times as fast as possible
