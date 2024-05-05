@@ -26,8 +26,8 @@ func TestComponent_Start(t *testing.T) {
 		},
 	}
 
-	tg_mock := telegram_mock.NewMockTelegram(ctrl)
-	config_mock := configs_mock.NewMockConfigsCache(ctrl)
+	tgMock := telegram_mock.NewMockTelegram(ctrl)
+	configMock := configs_mock.NewMockConfigsCache(ctrl)
 
 	type fields struct {
 		config    *configs_mock.MockConfigsCache
@@ -45,7 +45,7 @@ func TestComponent_Start(t *testing.T) {
 	}{
 		{
 			name: "ok",
-			fields: fields{config: config_mock, telegram: tg_mock, input: make(chan []entities.FeedItem), feedItems: []entities.FeedItem{
+			fields: fields{config: configMock, telegram: tgMock, input: make(chan []entities.FeedItem), feedItems: []entities.FeedItem{
 				{
 					Title:       "title_1",
 					Description: "description_1",

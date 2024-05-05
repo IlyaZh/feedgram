@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	configs_mock "github.com/IlyaZh/feedsgram/internal/caches/configs/mocks"
-	telegram_mock "github.com/IlyaZh/feedsgram/internal/components/telegram/mocks"
+	configsMock "github.com/IlyaZh/feedsgram/internal/caches/configs/mocks"
+	telegramMock "github.com/IlyaZh/feedsgram/internal/components/telegram/mocks"
 	"github.com/IlyaZh/feedsgram/internal/configs"
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"go.uber.org/mock/gomock"
@@ -31,9 +31,9 @@ func TestComponent_formatFeedPosts(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	footer := "Updated: {{now}}"
-	config_mock := configs_mock.NewMockConfigsCache(ctrl)
+	config_mock := configsMock.NewMockConfigsCache(ctrl)
 
-	tg_mock := telegram_mock.NewMockTelegram(ctrl)
+	tg_mock := telegramMock.NewMockTelegram(ctrl)
 	testTime, _ := time.Parse(time.RFC3339, "2024-03-02T12:45:57+01:00")
 	now := time.Now()
 	img_1 := "image_url_1"
@@ -60,8 +60,8 @@ func TestComponent_formatFeedPosts(t *testing.T) {
 		posts []entities.FeedItem
 	}
 	type fields struct {
-		config   *configs_mock.MockConfigsCache
-		telegram *telegram_mock.MockTelegram
+		config   *configsMock.MockConfigsCache
+		telegram *telegramMock.MockTelegram
 		input    <-chan []entities.FeedItem
 	}
 	tests := []struct {

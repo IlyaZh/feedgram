@@ -18,6 +18,7 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/db"
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/utils"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/labstack/gommon/log"
 
 	config "github.com/IlyaZh/feedsgram/internal/caches/configs"
@@ -43,7 +44,7 @@ func main() {
 	log.Info("Service initialization start")
 
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
-	isDebug := workEnv == consts.EnvironmentDebug
+	isDebug := (workEnv == consts.EnvironmentDebug)
 	if isDebug {
 		log.SetLevel(log.DEBUG)
 	}
@@ -62,7 +63,12 @@ func main() {
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
 	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
-	telegram := telegram.NewTelegram(configsCache, isDebug)
+
+	tgBot, err := tgbotapi.NewBotAPI(config.Telegram.Token)
+	if err != nil {
+		panic(err)
+	}
+	telegram := telegram.NewTelegram(configsCache, tgBot)
 
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
 	telegram.Start(ctx, messageBuffer)
