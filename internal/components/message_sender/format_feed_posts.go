@@ -1,7 +1,6 @@
 package message_sender
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -10,7 +9,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-func (c *Component) formatFeedPosts(ctx context.Context, posts []entities.FeedItem) (message string, err error) {
+func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, err error) {
 	config := c.config.GetValues().Formatter
 
 	formatter, ok := config[formatterFeedPost]

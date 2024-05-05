@@ -5,7 +5,6 @@
 docker-compose.yaml
 app
 README.md
-Makefile
 app
 configs
 Dockerfile

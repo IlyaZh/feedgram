@@ -1,0 +1,30 @@
+name: pull request to master
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Go 1.21.x
+      uses: actions/setup-go@v5
+      with:
+        # Semantic version range syntax or exact version of Go
+        go-version: '1.22.x'
+    - name: Install dependencies
+      run: go mod download && go install go.uber.org/mock/mockgen@latest && export PATH=$PATH:$(go env GOPATH)/bin && sudo apt update && sudo apt install make
+    - name: Build
+      run: make build
+    - name: Test with the Go CLI
+      run: make test
+    - name: Push the image
+      uses: docker/build-push-action@v4
+      with:
+          push: false
+          tags: ilyazh/feedgram:latest

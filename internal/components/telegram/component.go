@@ -19,29 +19,22 @@ type Telegram interface {
 type Component struct {
 	token   string
 	offset  int
-	config  *configs.Cache
-	api     *tgbotapi.BotAPI
-	isDebug bool
+	config  configs.ConfigsCache
+	api     TelegramAPI
 	updates tgbotapi.UpdatesChannel
 }
 
-func NewTelegram(config *configs.Cache, isDebug bool) Telegram {
+func NewTelegram(config configs.ConfigsCache, tgApi TelegramAPI) *Component {
 	return &Component{
-		token:   config.GetValues().Telegram.Token,
-		config:  config,
-		offset:  0,
-		isDebug: isDebug}
+		token:  config.GetValues().Telegram.Token,
+		config: config,
+		api:    tgApi,
+		offset: 0}
 }
 
 func (c *Component) Start(ctx context.Context, output chan<- entities.Message) {
 	log.Println("Telegram component start")
-	var err error
 	settings := c.config.GetValues().Telegram
-	c.api, err = tgbotapi.NewBotAPI(c.token)
-	if err != nil {
-		panic(err.Error())
-	}
-	c.api.Debug = c.isDebug
 
 	u := tgbotapi.NewUpdate(c.offset)
 	u.Timeout = *settings.Timeout

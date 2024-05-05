@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 
 	"os"
 	"os/signal"
@@ -14,14 +13,15 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/components/message_sender"
 	"github.com/IlyaZh/feedsgram/internal/components/news_checker"
 	"github.com/IlyaZh/feedsgram/internal/components/storage"
+	"github.com/IlyaZh/feedsgram/internal/components/telegram"
 	"github.com/IlyaZh/feedsgram/internal/consts"
 	"github.com/IlyaZh/feedsgram/internal/db"
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/utils"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/labstack/gommon/log"
 
 	config "github.com/IlyaZh/feedsgram/internal/caches/configs"
-	"github.com/IlyaZh/feedsgram/internal/components/telegram"
 )
 
 func wait() {
@@ -31,9 +31,7 @@ func wait() {
 
 	go func() {
 		sig := <-sigs
-		fmt.Println()
-		fmt.Printf("Signal recevied %d", sig)
-		fmt.Println()
+		log.Printf("OS Signal recevied %d", sig)
 		done <- true
 	}()
 	<-done
@@ -46,7 +44,8 @@ func main() {
 	log.Info("Service initialization start")
 
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
-	if workEnv == consts.EnvironmentDebug {
+	isDebug := (workEnv == consts.EnvironmentDebug)
+	if isDebug {
 		log.SetLevel(log.DEBUG)
 	}
 
@@ -64,7 +63,12 @@ func main() {
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
 	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
-	telegram := telegram.NewTelegram(configsCache, true)
+
+	tgBot, err := tgbotapi.NewBotAPI(config.Telegram.Token)
+	if err != nil {
+		panic(err)
+	}
+	telegram := telegram.NewTelegram(configsCache, tgBot)
 
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
 	telegram.Start(ctx, messageBuffer)

@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+//go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type MeesageSender interface {
 	Start(ctx context.Context)
 }
@@ -19,7 +20,7 @@ type Component struct {
 	input    <-chan []entities.FeedItem
 }
 
-func NewMeesageSender(config configs.ConfigsCache, telegram telegram.Telegram, input <-chan []entities.FeedItem) MeesageSender {
+func NewMeesageSender(config configs.ConfigsCache, telegram telegram.Telegram, input <-chan []entities.FeedItem) *Component {
 	return &Component{
 		config:   config,
 		telegram: telegram,
@@ -30,7 +31,7 @@ func NewMeesageSender(config configs.ConfigsCache, telegram telegram.Telegram, i
 func (c *Component) Start(ctx context.Context) {
 	go func() {
 		for posts := range c.input {
-			message, err := c.formatFeedPosts(ctx, posts)
+			message, err := c.formatFeedPosts(posts)
 			if err != nil {
 				log.Errorf("error while formatting feed posts: %s", err.Error())
 				continue

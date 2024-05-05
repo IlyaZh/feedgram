@@ -20,7 +20,7 @@ mysql:
     limit: 10
 rss_reader:
     timeout: 3
-    buffer_size: 10
+    buffer_size: 100
     posts_settings:
         max_post_per_feed: 3
         new_feeds:
@@ -34,11 +34,11 @@ news_checker:
 formatter:
     feed_post: 
         header: |
-            <b>Новые посты</b>
+            <b>New posts</b>
         loop: |
             {{number}}. <a href="{{link}}">{{title}}</a>
-            <i>Опубликовано: {{published_at}} (UTC)</i>
-            <b>Описание:</b> {{description}}
+            <i>Published: {{published_at}} (UTC)</i>
+            <b>Description:</b> {{description}}
              
         footer:  |
-            Обновлено {{now}} (UTC)
+            Updated: {{now}} (UTC)

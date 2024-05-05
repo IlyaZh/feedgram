@@ -9,6 +9,7 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/utils"
 )
 
+//go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type RssReader interface {
 	ReadFeed(ctx context.Context, link entities.Link, newerThan *time.Time, lastPostLink *string) (entities.Feed, error)
 }

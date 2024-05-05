@@ -9,7 +9,7 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/entities"
 )
 
-//go:generate mockgen -source component.go -package mocks -destination mock/component.go
+//go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type Storage interface {
 	UpsertSource(ctx context.Context, source entities.Source) (int64, error)
 	GetSources(ctx context.Context, id *int64, isActive *bool, limit *int) ([]entities.Source, bool, error)
