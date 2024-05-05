@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/configs"
 	"github.com/IlyaZh/feedsgram/internal/utils"
+
 	"github.com/labstack/gommon/log"
 )
 
@@ -38,39 +40,34 @@ func (c *Cache) loadFromFile() error {
 	return nil
 }
 
-func NewCache(ctx context.Context, configFileName string, secdistFilePath string, period time.Duration) *Cache {
+func NewCache(ctx context.Context, configFilePath string, secdistFilePath string, period time.Duration) *Cache {
 	if cache != nil {
 		return cache
 	}
 	log.Infof("[%s] Component start initialization", name)
 
-	cache = &Cache{filePath: utils.MakePath(nil, configFileName), period: period}
+	configAbsFilePath, err := filepath.Abs(configFilePath)
+	if err != nil {
+		panic(err)
+	}
 
-	cache.secDist = configs.NewSecDist(utils.MakePath(nil, secdistFilePath))
+	cache = &Cache{filePath: configAbsFilePath, period: period}
+
+	secdistFile, err := filepath.Abs(secdistFilePath)
+	if err != nil {
+		panic(err)
+	}
+	cache.secDist = configs.NewSecDist(secdistFile)
 
 	// check if initial loading is done
 	log.Infof("[%s] Component wait for loading file", name)
-	err := cache.loadFromFile()
+	err = cache.loadFromFile()
 	if err != nil {
 		panic(err)
 	}
 	log.Infof("[%s] Init OK", name)
 
-	ticker := time.NewTicker(period)
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return // exit properly on cancellation
-			case <-ticker.C:
-				err := cache.loadFromFile()
-				if err != nil {
-					log.Errorf("error while loading config: %s", err.Error())
-				}
-			}
-		}
-	}()
+	go utils.FileChangedNotify(configAbsFilePath, cache.loadFromFile)
 
 	log.Infof("[%s] Component initialization has finished", name)
 

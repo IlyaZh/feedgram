@@ -9,18 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/IlyaZh/feedsgram/internal/components/message_dispatcher"
-	"github.com/IlyaZh/feedsgram/internal/components/message_sender"
-	"github.com/IlyaZh/feedsgram/internal/components/news_checker"
-	"github.com/IlyaZh/feedsgram/internal/components/storage"
 	"github.com/IlyaZh/feedsgram/internal/consts"
-	"github.com/IlyaZh/feedsgram/internal/db"
-	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/IlyaZh/feedsgram/internal/utils"
 	"github.com/labstack/gommon/log"
 
 	config "github.com/IlyaZh/feedsgram/internal/caches/configs"
-	"github.com/IlyaZh/feedsgram/internal/components/telegram"
 )
 
 func wait() {
@@ -60,24 +52,25 @@ func main() {
 	flag.Parse()
 
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
-	config := configsCache.GetValues()
-	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
-	telegram := telegram.NewTelegram(configsCache, isDebug)
+	_ = configsCache.GetValues()
+	// config := configsCache.GetValues()
+	// storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
+	// telegram := telegram.NewTelegram(configsCache, isDebug)
 
-	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
-	telegram.Start(ctx, messageBuffer)
+	// messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
+	// telegram.Start(ctx, messageBuffer)
 
-	dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
-	dispatcher.Start(ctx)
+	// dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
+	// dispatcher.Start(ctx)
 
-	feedsChannel := make(chan []entities.FeedItem, config.NewsChecker.BufferSize)
+	// feedsChannel := make(chan []entities.FeedItem, config.NewsChecker.BufferSize)
 
-	newsChecker := news_checker.NewNewsChecker(configsCache, feedsChannel, storage)
-	newsCheckerPeriodc := utils.NewPeriodic("news checker", newsChecker)
-	newsCheckerPeriodc.Start(ctx)
+	// newsChecker := news_checker.NewNewsChecker(configsCache, feedsChannel, storage)
+	// newsCheckerPeriodc := utils.NewPeriodic("news checker", newsChecker)
+	// newsCheckerPeriodc.Start(ctx)
 
-	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel)
-	sender.Start(ctx)
+	// sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel)
+	// sender.Start(ctx)
 
 	log.Info("Service initialization has finished")
 
