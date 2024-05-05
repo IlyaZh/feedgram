@@ -43,7 +43,8 @@ mock-gen:
 	mockgen -source ./internal/components/storage/component.go -package mocks -destination ./internal/components/storage/mocks/component.go; \
 	\
 	mkdir -p ./internal/components/telegram/mocks; \
-	mockgen -source ./internal/components/telegram/component.go -package mocks -destination ./internal/components/telegram/mocks/component.go
+	mockgen -source ./internal/components/telegram/component.go -package mocks -destination ./internal/components/telegram/mocks/component.go \ 
+	mockgen -source ./internal/components/telegram/tg_api.go -package mocks -destination ./internal/components/telegram/mocks/tg_api.go
 
 gen: mock-gen
 
