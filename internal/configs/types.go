@@ -37,7 +37,7 @@ type telegramRaw struct {
 	Timeout          *int    `yaml:"timeout"`
 	AllowedChatIds   []int64 `yaml:"allowed_chats_id"`
 	ChatForFeed      int64   `yaml:"chat_for_feed"`
-	MessageWhenStart *bool   `yaml:"message_when_start,emitempty"`
+	MessageWhenStart *bool   `yaml:"message_when_start"`
 }
 
 type Mysql struct {
