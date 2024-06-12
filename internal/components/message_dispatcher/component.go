@@ -7,13 +7,15 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/components/rss_reader"
 	"github.com/IlyaZh/feedsgram/internal/components/storage"
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 )
 
 //go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type MessageDispatcher interface {
 	Start()
 }
+
+var name string = "Dispatcher"
 
 type Component struct {
 	configs    *configs.Cache
@@ -37,7 +39,8 @@ func NewMessageDispatcher(config *configs.Cache, storage storage.Storage, input 
 }
 
 func (c *Component) Start(ctx context.Context) {
-	log.Info("Dispatcher start")
+	log := logger.GetLoggerComponent(ctx, name)
+	log.Info("Component start")
 	go c.dispatch(ctx)
-	log.Info("Dispatcher has started")
+	log.Info("Component has started")
 }

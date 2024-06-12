@@ -23,7 +23,7 @@ jobs:
       run: make build
     - name: Test with the Go CLI
       run: make test
-    - name: Push the image
+    - name: Build the image
       uses: docker/build-push-action@v4
       with:
           push: false

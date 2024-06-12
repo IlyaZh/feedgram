@@ -1,15 +1,19 @@
 package message_sender
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
+	"github.com/IlyaZh/feedsgram/internal/logger"
+
+	"go.uber.org/zap"
 )
 
-func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, err error) {
+func (c *Component) formatFeedPosts(ctx context.Context, posts []entities.FeedItem) (message entities.TelegramPost, err error) {
+	log := logger.GetLoggerComponent(ctx, name)
 	config := c.config.GetValues().Formatter
 
 	formatter, ok := config[formatterFeedPost]
@@ -20,7 +24,7 @@ func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, 
 	var sb strings.Builder
 	_, err = sb.WriteString(formatter.Header)
 	if err != nil {
-		log.Errorf("error while formatting feed header: %s", err.Error())
+		log.Error("error while formatting feed header", zap.Error(err))
 		return "", ErrMessageFormatFailed
 	}
 
@@ -33,7 +37,7 @@ func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, 
 
 		_, err = sb.WriteString(newPost)
 		if err != nil {
-			log.Errorf("error while formatting feed item: %s", err.Error())
+			log.Error("error while formatting feed item", zap.Error(err))
 			return "", ErrMessageFormatFailed
 		}
 	}
@@ -42,10 +46,10 @@ func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, 
 		newFooter := strings.ReplaceAll(*formatter.Footer, "{{now}}", time.Now().UTC().Format(time.DateTime))
 		_, err = sb.WriteString(newFooter)
 		if err != nil {
-			log.Errorf("error while formatting feed footer: %s", err.Error())
+			log.Error("error while formatting feed footer", zap.Error(err))
 			return "", ErrMessageFormatFailed
 		}
 	}
 
-	return sb.String(), nil
+	return entities.TelegramPost(sb.String()), nil
 }

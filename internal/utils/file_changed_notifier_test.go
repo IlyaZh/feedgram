@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 )
 
 func TestFileChangedNotify(t *testing.T) {
+	ctx := context.TODO()
 	ch := make(chan struct{})
 	currentPath, err := os.Getwd()
 	if err != nil {
@@ -19,7 +21,7 @@ func TestFileChangedNotify(t *testing.T) {
 
 	type args struct {
 		done      chan struct{}
-		execFunc  func() error
+		execFunc  func(context.Context) error
 		wantError bool
 	}
 	tests := []struct {
@@ -30,7 +32,7 @@ func TestFileChangedNotify(t *testing.T) {
 			name: "OK",
 			args: args{
 				done: ch,
-				execFunc: func() error {
+				execFunc: func(ctx context.Context) error {
 					ch <- struct{}{}
 					return nil
 				},
@@ -41,7 +43,7 @@ func TestFileChangedNotify(t *testing.T) {
 			name: "error in watcher function",
 			args: args{
 				done: ch,
-				execFunc: func() error {
+				execFunc: func(ctx context.Context) error {
 					return errors.New("some error")
 				},
 				wantError: true,
@@ -64,11 +66,11 @@ func TestFileChangedNotify(t *testing.T) {
 			if tt.args.wantError {
 				go func() {
 					require.Panics(t, func() {
-						FileChangedNotify(file.Name(), tt.args.execFunc)
+						FileChangedNotify(ctx, file.Name(), tt.args.execFunc)
 					})
 				}()
 			} else {
-				go FileChangedNotify(file.Name(), tt.args.execFunc)
+				go FileChangedNotify(ctx, file.Name(), tt.args.execFunc)
 			}
 			time.Sleep(time.Duration(1) * time.Second)
 

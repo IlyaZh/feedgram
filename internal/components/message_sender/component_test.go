@@ -62,14 +62,14 @@ func TestComponent_Start(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Component{
-				config:   tt.fields.config,
-				telegram: tt.fields.telegram,
-				input:    tt.fields.input,
+				config:    tt.fields.config,
+				telegram:  tt.fields.telegram,
+				feedsChan: tt.fields.input,
 			}
 			c.Start(tt.args.ctx)
 
 			tt.fields.config.EXPECT().GetValues().MaxTimes(1).Return(configValue)
-			tt.fields.telegram.EXPECT().PostMessageHTML(gomock.Any(), "formatted_item").MaxTimes(1).Return(nil)
+			tt.fields.telegram.EXPECT().PostMessageHTML(gomock.Any(), entities.TelegramPost("formatted_item")).MaxTimes(1).Return(nil)
 
 			go func() {
 				tt.fields.input <- tt.fields.feedItems

@@ -1,11 +1,17 @@
 package telegram
 
 import (
+	"context"
+
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/labstack/gommon/log"
+	"go.uber.org/zap"
 )
 
-func (c *Component) messageFilter(msg *tgbotapi.Update) bool {
+func (c *Component) messageFilter(ctx context.Context, msg *tgbotapi.Update) bool {
+	ctx = logger.CreateSpan(ctx, &name, "messageFilter")
+	log := logger.GetLoggerComponent(ctx, name)
+
 	if msg == nil || (msg.Message == nil && msg.ChannelPost == nil) {
 		return false
 	}
@@ -27,7 +33,7 @@ func (c *Component) messageFilter(msg *tgbotapi.Update) bool {
 			return false
 		}
 		if _, allowed := settings.AllowedChatIds[post.Chat.ID]; !allowed {
-			log.Warnf("message from not allowed chat: id = %d", post.Chat.ID)
+			log.Warn("message from not allowed chat", zap.Int64("chat_id", post.Chat.ID))
 			return false
 		}
 	}

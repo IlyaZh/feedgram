@@ -6,10 +6,14 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
+	"github.com/IlyaZh/feedsgram/internal/logger"
+
+	"go.uber.org/zap"
 )
 
-func (c *Component) Execute() {
+func (c *Component) Execute(ctx context.Context) {
+	ctx = logger.CreateSpan(ctx, &name, "Execute")
+	log := logger.GetLoggerComponent(ctx, name)
 	oneMore := true
 
 	config := c.config.GetValues().NewsChecker
@@ -22,7 +26,7 @@ func (c *Component) Execute() {
 		isActive := true
 		sources, hasNext, err := c.storage.GetSources(ctx, nil, &isActive, &config.ChunkSize)
 		if err != nil {
-			log.Errorf("error while getting sources in periodic")
+			log.Error("error while getting sources in periodic", zap.Error(err))
 			return
 		}
 		oneMore = hasNext
@@ -40,16 +44,16 @@ func (c *Component) Execute() {
 
 				items, err := c.requestFeed(ctx, source)
 				if err != nil {
-					log.Warnf("getting feed has failed (id=%d, url %s): %s", source.Id, source.URL, err.Error())
+					log.Warn("getting feed process has failed", zap.Int64("source_id", source.Id), zap.String("source_url", source.URL), zap.Error(err))
 					return
 				}
 				if items == nil {
-					log.Infof("source (id=%d, link=%s) has no new posts", source.Id, source.URL)
+					log.Info("there are no new posts in source", zap.Int64("source_id", source.Id), zap.String("source_url", source.URL))
 					return
 				}
 
 				for i, item := range *items {
-					log.Debugf("Put to channel %d, %s %s", i, item.Link, item.PublishedAt.String())
+					log.Debug("Put post to channel", zap.Int("idx", i), zap.String("item_link", string(item.Link)), zap.Timep("item_published_at", item.PublishedAt))
 					responsesChannel <- entities.RssResponse{
 						FeedItem: item,
 						Id:       source.Id,
@@ -93,7 +97,7 @@ func (c *Component) Execute() {
 		}
 		err = c.storage.UpdateSources(ctx, updatedFeeds)
 		if err != nil {
-			log.Errorf("Updating sources failed")
+			log.Error("Updating sources failed", zap.Error(err))
 			return
 		}
 	}

@@ -16,6 +16,8 @@ type Storage interface {
 	UpdateSources(ctx context.Context, sources []entities.UpdateSource) error
 }
 
+var name string = "Storage"
+
 // https://github.com/golang/mock
 
 type Component struct {

@@ -14,6 +14,8 @@ type RssReader interface {
 	ReadFeed(ctx context.Context, link entities.Link, newerThan *time.Time, lastPostLink *string) (entities.Feed, error)
 }
 
+var name string = "RssReader"
+
 type Component struct {
 	config    configs.ConfigsCache
 	sanitizer utils.Sanitizer

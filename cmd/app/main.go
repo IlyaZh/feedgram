@@ -19,42 +19,50 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/labstack/gommon/log"
+	"github.com/jamillosantos/logctx"
+	"go.uber.org/zap"
 
 	config "github.com/IlyaZh/feedsgram/internal/caches/configs"
 )
 
-func wait() {
+func wait(ctx context.Context) {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	done := make(chan bool, 1)
 
 	go func() {
 		sig := <-sigs
-		log.Printf("OS Signal recevied %d", sig)
+		logctx.Info(ctx, "OS Signal recevied", zap.String("signal", sig.String()))
 		done <- true
 	}()
 	<-done
 }
 
 func main() {
-	ctx := context.TODO()
-
-	log.SetPrefix(consts.ServiceName)
-	log.Info("Service initialization start")
-
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
 	isDebug := (workEnv == consts.EnvironmentDebug)
+	var logger *zap.Logger
+	var err error
 	if isDebug {
-		log.SetLevel(log.DEBUG)
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+	if err != nil {
+		panic(err)
 	}
 
-	defer func() {
+	ctx := context.TODO()
+	ctx = logctx.WithLogger(ctx, logger.With(zap.String("service", consts.ServiceName)))
+
+	logctx.Info(ctx, "Service initialization start")
+
+	defer func(ctx context.Context) {
 		if r := recover(); r != nil {
-			log.Errorf("panic occured: %s", r)
+			logctx.Error(ctx, "panic occured", zap.Any("panic", r))
 			panic(r)
 		}
-	}()
+	}(ctx)
 
 	secdistPathArg := flag.String("secdist", "configs/secdist.yaml", "Set a path to secdist file relaive root dir. E.g. \"configs/secdist.yaml\"")
 	configPathArg := flag.String("config", "configs/config.yaml", "Set a path to config file relaive to root dir. E.g. \"configs/config.yaml\"")
@@ -62,7 +70,7 @@ func main() {
 
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
-	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
+	storage := storage.NewStorage(configsCache, db.CreateInstance(ctx, configsCache))
 
 	tgBot, err := tgbotapi.NewBotAPI(config.Telegram.Token)
 	if err != nil {
@@ -73,20 +81,21 @@ func main() {
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
 	telegram.Start(ctx, messageBuffer)
 
+	postsChannel := make(chan entities.TelegramPost)
+
 	dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
 	dispatcher.Start(ctx)
 
 	feedsChannel := make(chan []entities.FeedItem, config.NewsChecker.BufferSize)
 
-	newsChecker := news_checker.NewNewsChecker(configsCache, feedsChannel, storage)
-	newsCheckerPeriodc := utils.NewPeriodic("news checker", newsChecker)
+	newsCheckerPeriodc := utils.NewPeriodic("news checker", news_checker.NewNewsChecker(configsCache, feedsChannel, storage))
 	newsCheckerPeriodc.Start(ctx)
 
-	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel)
+	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel, postsChannel)
 	sender.Start(ctx)
 
-	log.Info("Service initialization has finished")
+	logctx.Info(ctx, "Service initialization has finished")
 
-	wait()
-	log.Info("Service has stopped")
+	wait(ctx)
+	logctx.Info(ctx, "Service has stopped")
 }
