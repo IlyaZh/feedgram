@@ -14,4 +14,4 @@ RUN apk update && apk add --no-cache make
 COPY ./ ./
 RUN CGO_ENABLED=0 GOOS=linux make build
 
-CMD ["/deploy/feedgram", "--secdist=configs/secdist.yaml", "--config=configs/config.yaml"]
+CMD ["./deploy/feedgram", "--secdist=configs/secdist.yaml", "--config=configs/config.yaml"]
