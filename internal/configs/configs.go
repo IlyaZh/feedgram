@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/consts"
-
 	"github.com/labstack/gommon/log"
+
 	"gopkg.in/yaml.v2"
 )
 

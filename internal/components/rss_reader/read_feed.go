@@ -2,11 +2,12 @@ package rss_reader
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
 	"github.com/mmcdole/gofeed"
+	"google.golang.org/appengine/log"
 )
 
 func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan *time.Time, lastPostLink *string) (entities.Feed, error) {
@@ -29,7 +30,23 @@ func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan 
 	}
 	log.Debugf("newerThan = %s, lastPostLink = %s", dNewerThan, dLastPostLink)
 
+	sort.Slice(feed.Items, func(i, j int) bool {
+		if feed.Items[i] == nil && feed.Items[j] == nil {
+			return true
+		}
+
+		if feed.Items[i] == nil {
+			return false
+		}
+
+		if feed.Items[j] == nil {
+			return true
+		}
+
+		return feed.Items[i].PublishedParsed.After(*feed.Items[j].PublishedParsed)
+	})
 	items := make([]entities.FeedItem, 0, len(feed.Items))
+
 	config := c.config.GetValues().RssReader
 
 	for _, item := range feed.Items {

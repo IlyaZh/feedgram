@@ -5,7 +5,7 @@ import (
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/utils"
-	"github.com/labstack/gommon/log"
+	"google.golang.org/appengine/log"
 )
 
 func (c *Component) PostMessageHTML(ctx context.Context, message entities.TelegramPost) error {

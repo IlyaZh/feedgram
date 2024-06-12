@@ -3,10 +3,9 @@ package storage
 import (
 	"context"
 
-	"github.com/labstack/gommon/log"
-
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/queries"
+	"github.com/labstack/gommon/log"
 )
 
 func (c *Component) UpsertSource(ctx context.Context, source entities.Source) (id int64, err error) {

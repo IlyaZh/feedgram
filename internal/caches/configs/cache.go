@@ -9,8 +9,7 @@ import (
 
 	"github.com/IlyaZh/feedsgram/internal/configs"
 	"github.com/IlyaZh/feedsgram/internal/utils"
-
-	"github.com/labstack/gommon/log"
+	"google.golang.org/appengine/log"
 )
 
 //go:generate mockgen -source component.go -package mocks -destination mocks/component.go

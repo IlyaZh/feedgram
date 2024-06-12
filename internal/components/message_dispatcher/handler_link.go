@@ -6,8 +6,8 @@ import (
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/transformer"
-	"github.com/labstack/gommon/log"
 	"github.com/mmcdole/gofeed"
+	"google.golang.org/appengine/log"
 )
 
 func (c *Component) handler_link(ctx context.Context, link entities.Link) {
