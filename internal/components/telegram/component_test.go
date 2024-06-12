@@ -22,8 +22,8 @@ const (
 	chatForFeed int64 = 42
 )
 
-func createMessage(message string, chatID int64) tgbotapi.Update {
-	return tgbotapi.Update{
+func createMessage(message string, chatID int64, isCommand bool) tgbotapi.Update {
+	update := tgbotapi.Update{
 		ChannelPost: &tgbotapi.Message{
 			Chat: &tgbotapi.Chat{
 				ID: chatID,
@@ -31,6 +31,16 @@ func createMessage(message string, chatID int64) tgbotapi.Update {
 			Text: message,
 		},
 	}
+
+	if isCommand {
+		update.ChannelPost.Entities = make([]tgbotapi.MessageEntity, 0)
+		update.ChannelPost.Entities = append(update.ChannelPost.Entities, tgbotapi.MessageEntity{
+			Type:   "bot_command",
+			Length: len(message),
+		})
+	}
+
+	return update
 }
 
 func TestComponent_Start(t *testing.T) {
@@ -57,6 +67,7 @@ func TestComponent_Start(t *testing.T) {
 	storage := storageMock.NewMockStorage(ctrl)
 
 	linkAsMessage := entities.NewMessageLink("http://google.com")
+	commandAsMessage := entities.NewMessageCommand("sources")
 
 	type fields struct {
 		chatID          int64
@@ -64,16 +75,16 @@ func TestComponent_Start(t *testing.T) {
 		api             *tgAPIMock.MockTelegramAPI
 		updates         chan tgbotapi.Update
 		storage         storageComponent.Storage
-		Links           chan entities.Link
 		messageText     string
 		expectedMessage *entities.Message
+		isCommand       bool
 	}
 	tests := []struct {
 		name   string
 		fields fields
 	}{
 		{
-			name: "ok",
+			name: "ok link",
 			fields: fields{
 				chatID:          chatID,
 				config:          configMock,
@@ -82,6 +93,20 @@ func TestComponent_Start(t *testing.T) {
 				storage:         storage,
 				messageText:     "Hello http://google.com Vasya",
 				expectedMessage: &linkAsMessage,
+				isCommand:       false,
+			},
+		},
+		{
+			name: "ok command",
+			fields: fields{
+				chatID:          chatID,
+				config:          configMock,
+				api:             apiMock,
+				updates:         make(chan tgbotapi.Update, 10),
+				storage:         storage,
+				messageText:     "/sources",
+				expectedMessage: &commandAsMessage,
+				isCommand:       true,
 			},
 		},
 		{
@@ -94,6 +119,7 @@ func TestComponent_Start(t *testing.T) {
 				storage:         storage,
 				messageText:     "Hello http://google.com Vasya",
 				expectedMessage: nil,
+				isCommand:       false,
 			},
 		},
 		{
@@ -106,6 +132,7 @@ func TestComponent_Start(t *testing.T) {
 				storage:         storage,
 				messageText:     "Hello Vasya",
 				expectedMessage: nil,
+				isCommand:       false,
 			},
 		},
 		{
@@ -118,6 +145,7 @@ func TestComponent_Start(t *testing.T) {
 				storage:         storage,
 				messageText:     "",
 				expectedMessage: nil,
+				isCommand:       false,
 			},
 		},
 	}
@@ -136,7 +164,7 @@ func TestComponent_Start(t *testing.T) {
 				offset: 0}
 			c.Start(context.TODO(), ch)
 
-			tt.fields.updates <- createMessage(tt.fields.messageText, tt.fields.chatID)
+			tt.fields.updates <- createMessage(tt.fields.messageText, tt.fields.chatID, tt.fields.isCommand)
 			if tt.fields.expectedMessage == nil {
 				return
 			}

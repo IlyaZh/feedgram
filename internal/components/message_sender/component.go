@@ -15,22 +15,24 @@ type MeesageSender interface {
 }
 
 type Component struct {
-	config   configs.ConfigsCache
-	telegram telegram.Telegram
-	input    <-chan []entities.FeedItem
+	config    configs.ConfigsCache
+	telegram  telegram.Telegram
+	feedsChan <-chan []entities.FeedItem
+	postsChan <-chan entities.TelegramPost
 }
 
-func NewMeesageSender(config configs.ConfigsCache, telegram telegram.Telegram, input <-chan []entities.FeedItem) *Component {
+func NewMeesageSender(config configs.ConfigsCache, telegram telegram.Telegram, feedsChan <-chan []entities.FeedItem, postsChan <-chan entities.TelegramPost) *Component {
 	return &Component{
-		config:   config,
-		telegram: telegram,
-		input:    input,
+		config:    config,
+		telegram:  telegram,
+		feedsChan: feedsChan,
+		postsChan: postsChan,
 	}
 }
 
 func (c *Component) Start(ctx context.Context) {
-	go func() {
-		for posts := range c.input {
+	go func() { // receive feeds
+		for posts := range c.feedsChan {
 			message, err := c.formatFeedPosts(posts)
 			if err != nil {
 				log.Errorf("error while formatting feed posts: %s", err.Error())
@@ -40,6 +42,15 @@ func (c *Component) Start(ctx context.Context) {
 			err = c.telegram.PostMessageHTML(ctx, message)
 			if err != nil {
 				log.Errorf("error while sending feed digest to telegram: %s", err.Error())
+			}
+		}
+	}()
+
+	go func() { // recevie posts
+		for post := range c.postsChan {
+			err := c.telegram.PostMessageHTML(ctx, post)
+			if err != nil {
+				log.Errorf("error while sending post to telegram: %s", err.Error())
 			}
 		}
 	}()

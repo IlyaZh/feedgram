@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Component) requestFeed(ctx context.Context, source entities.Source) (*[]entities.FeedItem, error) {
-	feed, err := c.reader.ReadFeed(ctx, source.Link, source.LastPostedAt, source.LastPostLink)
+	feed, err := c.reader.ReadFeed(ctx, source.Link, source.LastPostAt, source.LastPostLink)
 	if err != nil {
 		return nil, err
 	}

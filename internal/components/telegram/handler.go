@@ -21,14 +21,18 @@ func (c *Component) handler(ctx context.Context, output chan<- entities.Message)
 			post = *update.ChannelPost
 		}
 
-		links := parseLinks(post.Text)
-		if len(links) == 0 {
-			log.Info("links not found in message, skip")
-			continue
-		}
+		if post.IsCommand() {
+			output <- entities.NewMessageCommand(entities.Command(post.Command()))
+		} else {
+			links := parseLinks(post.Text)
+			if len(links) == 0 {
+				log.Info("links not found in message, skip")
+				continue
+			}
 
-		for _, link := range links {
-			output <- entities.NewMessageLink(link)
+			for _, link := range links {
+				output <- entities.NewMessageLink(link)
+			}
 		}
 	}
 }

@@ -8,6 +8,7 @@ import (
 	configsMock "github.com/IlyaZh/feedsgram/internal/caches/configs/mocks"
 	tgAPIMock "github.com/IlyaZh/feedsgram/internal/components/telegram/mocks"
 	"github.com/IlyaZh/feedsgram/internal/configs"
+	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/mock/gomock"
@@ -43,7 +44,7 @@ func TestComponent_PostMessageHTML(t *testing.T) {
 	}
 	type args struct {
 		ctx     context.Context
-		message string
+		message entities.TelegramPost
 	}
 	tests := []struct {
 		name    string
@@ -61,7 +62,7 @@ func TestComponent_PostMessageHTML(t *testing.T) {
 			},
 			args: args{
 				ctx:     context.TODO(),
-				message: "message to send",
+				message: entities.TelegramPost("message to send"),
 			},
 			wantErr: false,
 		},
@@ -75,7 +76,7 @@ func TestComponent_PostMessageHTML(t *testing.T) {
 			},
 			args: args{
 				ctx:     context.TODO(),
-				message: "message to send",
+				message: entities.TelegramPost("message to send"),
 			},
 			wantErr: true,
 		},

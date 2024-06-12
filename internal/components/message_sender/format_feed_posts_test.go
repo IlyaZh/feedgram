@@ -60,31 +60,32 @@ func TestComponent_formatFeedPosts(t *testing.T) {
 		posts []entities.FeedItem
 	}
 	type fields struct {
-		config   *configsMock.MockConfigsCache
-		telegram *telegramMock.MockTelegram
-		input    <-chan []entities.FeedItem
+		config    *configsMock.MockConfigsCache
+		telegram  *telegramMock.MockTelegram
+		input     <-chan []entities.FeedItem
+		postsChan <-chan entities.TelegramPost
 	}
 	tests := []struct {
 		name        string
 		fields      fields
 		args        args
-		wantMessage string
+		wantMessage entities.TelegramPost
 		wantErr     bool
 		msgFooter   *string
 	}{
 		{
 			name:        "ok",
-			fields:      fields{config: config_mock, telegram: tg_mock, input: make(chan []entities.FeedItem)},
+			fields:      fields{config: config_mock, telegram: tg_mock, input: make(chan []entities.FeedItem), postsChan: make(chan entities.TelegramPost)},
 			args:        args{posts: posts},
-			wantMessage: "Header\n1. <a href=\"link_1\">title_1</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_1\n\n2. <a href=\"link_2\">title_2</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_2\nUpdated: " + now.UTC().Format("2006-01-02 15:04:05"),
+			wantMessage: entities.TelegramPost("Header\n1. <a href=\"link_1\">title_1</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_1\n\n2. <a href=\"link_2\">title_2</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_2\nUpdated: " + now.UTC().Format("2006-01-02 15:04:05")),
 			wantErr:     false,
 			msgFooter:   &footer,
 		},
 		{
 			name:        "ok_without_footer",
-			fields:      fields{config: config_mock, telegram: tg_mock, input: make(chan []entities.FeedItem)},
+			fields:      fields{config: config_mock, telegram: tg_mock, input: make(chan []entities.FeedItem), postsChan: make(chan entities.TelegramPost)},
 			args:        args{posts: posts},
-			wantMessage: "Header\n1. <a href=\"link_1\">title_1</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_1\n\n2. <a href=\"link_2\">title_2</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_2\n",
+			wantMessage: entities.TelegramPost("Header\n1. <a href=\"link_1\">title_1</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_1\n\n2. <a href=\"link_2\">title_2</a>\n<i>Published: 2024-03-02 11:45:57 (UTC)</i>\n<b>Description:</b> description_2\n"),
 			wantErr:     false,
 			msgFooter:   nil,
 		},
@@ -93,7 +94,7 @@ func TestComponent_formatFeedPosts(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.fields.config.EXPECT().GetValues().MaxTimes(1).Return(createConfigFormatter(tt.msgFooter))
 
-			c := NewMeesageSender(tt.fields.config, tt.fields.telegram, tt.fields.input)
+			c := NewMeesageSender(tt.fields.config, tt.fields.telegram, tt.fields.input, tt.fields.postsChan)
 			gotMessage, err := c.formatFeedPosts(tt.args.posts)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Component.formatFeedPosts() error = %v, wantErr %v", err, tt.wantErr)

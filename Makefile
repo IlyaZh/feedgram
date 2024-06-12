@@ -7,6 +7,9 @@ run: build
 run-debug: build
 	export ENVIRONMENT=debug && go run ./cmd/app/
 
+format:
+	go fmt ./cmd/app
+
 test:
 	go test ./...
 

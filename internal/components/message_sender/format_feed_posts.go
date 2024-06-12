@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, err error) {
+func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message entities.TelegramPost, err error) {
 	config := c.config.GetValues().Formatter
 
 	formatter, ok := config[formatterFeedPost]
@@ -47,5 +47,5 @@ func (c *Component) formatFeedPosts(posts []entities.FeedItem) (message string, 
 		}
 	}
 
-	return sb.String(), nil
+	return entities.TelegramPost(sb.String()), nil
 }

@@ -73,6 +73,8 @@ func main() {
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
 	telegram.Start(ctx, messageBuffer)
 
+	postsChannel := make(chan entities.TelegramPost)
+
 	dispatcher := message_dispatcher.NewMessageDispatcher(configsCache, storage, messageBuffer)
 	dispatcher.Start(ctx)
 
@@ -82,7 +84,7 @@ func main() {
 	newsCheckerPeriodc := utils.NewPeriodic("news checker", newsChecker)
 	newsCheckerPeriodc.Start(ctx)
 
-	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel)
+	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel, postsChannel)
 	sender.Start(ctx)
 
 	log.Info("Service initialization has finished")

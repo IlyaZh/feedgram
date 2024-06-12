@@ -3,11 +3,12 @@ package telegram
 import (
 	"context"
 
+	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/utils"
 	"github.com/labstack/gommon/log"
 )
 
-func (c *Component) PostMessageHTML(ctx context.Context, message string) error {
+func (c *Component) PostMessageHTML(ctx context.Context, message entities.TelegramPost) error {
 	config := c.config.GetValues().Telegram
 
 	log.Debugf("trying to send message: %s", message)
