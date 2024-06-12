@@ -32,14 +32,19 @@ func (c *Config) Scan(ctx context.Context, v []byte, secdist SecDist) error {
 		useWebhook = *raw.Telegram.UseWebhook
 	}
 
+	messageWhenStart := false
+	if raw.Telegram.MessageWhenStart != nil {
+		messageWhenStart = *raw.Telegram.MessageWhenStart
+	}
 	c.Telegram = Telegram{
-		Token:          secdist.Telegram.Token,
-		BotID:          raw.Telegram.BotID,
-		UseWebhook:     useWebhook,
-		Limit:          raw.Telegram.Limit,
-		Timeout:        raw.Telegram.Timeout,
-		AllowedChatIds: allowedChatIds,
-		ChatForFeed:    raw.Telegram.ChatForFeed,
+		Token:            secdist.Telegram.Token,
+		BotID:            raw.Telegram.BotID,
+		UseWebhook:       useWebhook,
+		Limit:            raw.Telegram.Limit,
+		Timeout:          raw.Telegram.Timeout,
+		AllowedChatIds:   allowedChatIds,
+		ChatForFeed:      raw.Telegram.ChatForFeed,
+		MessageWhenStart: messageWhenStart,
 	}
 
 	c.Mysql = Mysql{
