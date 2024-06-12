@@ -8,6 +8,7 @@ telegram:
         - 70250337
         - -1001549464996
     chat_for_feed: -1001549464996
+    message_when_start: false
 mysql:
     host: '<secdist>'
     user: '<secdist>'

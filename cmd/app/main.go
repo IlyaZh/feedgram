@@ -87,6 +87,10 @@ func main() {
 
 	logctx.Info(ctx, "Service initialization has finished")
 
+	if config.Telegram.MessageWhenStart {
+		_ = telegram.PostMessageHTML(ctx, entities.TelegramPost("Feedgram has started"))
+	}
+
 	wait(ctx)
 	logctx.Info(ctx, "Service has stopped")
 }
