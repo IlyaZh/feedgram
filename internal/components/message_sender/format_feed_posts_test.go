@@ -1,6 +1,7 @@
 package message_sender
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -95,7 +96,7 @@ func TestComponent_formatFeedPosts(t *testing.T) {
 			tt.fields.config.EXPECT().GetValues().MaxTimes(1).Return(createConfigFormatter(tt.msgFooter))
 
 			c := NewMeesageSender(tt.fields.config, tt.fields.telegram, tt.fields.input, tt.fields.postsChan)
-			gotMessage, err := c.formatFeedPosts(tt.args.posts)
+			gotMessage, err := c.formatFeedPosts(context.TODO(), tt.args.posts)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Component.formatFeedPosts() error = %v, wantErr %v", err, tt.wantErr)
 				return

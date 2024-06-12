@@ -1,11 +1,13 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/IlyaZh/feedsgram/internal/caches/configs"
-	"github.com/labstack/gommon/log"
+	"go.uber.org/zap"
 
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
@@ -26,7 +28,9 @@ type Db struct {
 
 var db *Db
 
-func CreateInstance(config *configs.Cache) *Db {
+func CreateInstance(ctx context.Context, config *configs.Cache) *Db {
+	ctx = logger.CreateSpan(ctx, nil, "CreateInstance")
+	log := logger.GetLogger(ctx)
 	if db != nil && db.dbx != nil {
 		return db
 	}
@@ -43,9 +47,9 @@ func CreateInstance(config *configs.Cache) *Db {
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", settings.User, settings.Password, host, port, settings.Database)
-	log.Infof("Trying to connect to db='%s', at host '%s', port = %d, with user '%s'", settings.Database, host, port, settings.User)
+	log.Info("Trying to connect to db", zap.String("datebase", settings.Database), zap.String("host", host))
 	db.dbx = sqlx.MustConnect("mysql", connectionString)
-	log.Info("DB connect is OK")
+	log.Info("DB connect is OK", zap.String("datebase", settings.Database), zap.String("host", host))
 
 	maxOpenConnections := defaultMaxOpenConnections
 	if settings.MaxOpenConnections != nil {

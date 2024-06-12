@@ -1,7 +1,8 @@
 package configs
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -20,7 +21,7 @@ type SecDist struct {
 	} `yaml:"mysql"`
 }
 
-func NewSecDist(path string) SecDist {
+func NewSecDist(ctx context.Context, path string) SecDist {
 	var s SecDist
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -29,7 +30,7 @@ func NewSecDist(path string) SecDist {
 
 	err = yaml.Unmarshal(content, &s)
 	if err != nil {
-		log.Fatalf("Error while loading secdist file: %s", path)
+		panic(fmt.Sprintf("Error while loading secdist file: %s", path))
 	}
 	return s
 }

@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/configs"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	"github.com/IlyaZh/feedsgram/internal/utils"
-	"google.golang.org/appengine/log"
+	"go.uber.org/zap"
 )
 
 //go:generate mockgen -source component.go -package mocks -destination mocks/component.go
@@ -19,14 +20,14 @@ type ConfigsCache interface {
 
 var cache *Cache
 
-func (c *Cache) loadFromFile() error {
+func (c *Cache) loadFromFile(ctx context.Context) error {
 
 	yamlFile, err := os.ReadFile(c.filePath)
 	if err != nil {
 		return fmt.Errorf("error occured while loading config file: %s", cache.filePath)
 	}
 	var newValue configs.Config
-	err = newValue.Scan(yamlFile, c.secDist)
+	err = newValue.Scan(ctx, yamlFile, c.secDist)
 	if err != nil {
 		return fmt.Errorf("error occured while parsing config file: %s", cache.filePath)
 	}
@@ -43,7 +44,7 @@ func NewCache(ctx context.Context, configFilePath string, secdistFilePath string
 	if cache != nil {
 		return cache
 	}
-	log.Infof("[%s] Component start initialization", name)
+	log := logger.GetLoggerComponent(ctx, name)
 
 	configAbsFilePath, err := filepath.Abs(configFilePath)
 	if err != nil {
@@ -56,19 +57,19 @@ func NewCache(ctx context.Context, configFilePath string, secdistFilePath string
 	if err != nil {
 		panic(err)
 	}
-	cache.secDist = configs.NewSecDist(secdistFile)
+	cache.secDist = configs.NewSecDist(ctx, secdistFile)
 
 	// check if initial loading is done
-	log.Infof("[%s] Component wait for loading file", name)
-	err = cache.loadFromFile()
+	log.Info("Wait for loading file", zap.String("file", name))
+	err = cache.loadFromFile(ctx)
 	if err != nil {
 		panic(err)
 	}
-	log.Infof("[%s] Init OK", name)
+	log.Info("Init OK")
 
-	go utils.FileChangedNotify(configAbsFilePath, cache.loadFromFile)
+	go utils.FileChangedNotify(ctx, configAbsFilePath, cache.loadFromFile)
 
-	log.Infof("[%s] Component initialization has finished", name)
+	log.Info("Initialization has finished")
 
 	return cache
 

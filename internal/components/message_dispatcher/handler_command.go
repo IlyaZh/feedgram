@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
+	"github.com/IlyaZh/feedsgram/internal/logger"
+	"go.uber.org/zap"
 )
 
 type sourceMessage struct {
@@ -15,10 +16,10 @@ type sourceMessage struct {
 }
 
 func (c *Component) handler_command(ctx context.Context, command entities.Command) {
+	log := logger.GetLogger(ctx)
 
 	switch string(command) {
 	case CommandList:
-
 		var id int64 = 0
 		isActive := true
 		limit := 10
@@ -29,7 +30,7 @@ func (c *Component) handler_command(ctx context.Context, command entities.Comman
 		for hasNext {
 			sources, hasNext, err = c.storage.GetSources(ctx, &id, &isActive, &limit)
 			if err != nil {
-				log.Errorf("Error while upserting source: %s", err.Error())
+				log.Error("Error while upserting source", zap.Error(err))
 			}
 			messages := make([]sourceMessage, 0, limit)
 			for _, source := range sources {

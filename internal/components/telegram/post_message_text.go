@@ -4,20 +4,23 @@ import (
 	"context"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	"github.com/IlyaZh/feedsgram/internal/utils"
-	"google.golang.org/appengine/log"
+	"go.uber.org/zap"
 )
 
 func (c *Component) PostMessageHTML(ctx context.Context, message entities.TelegramPost) error {
+	ctx = logger.CreateSpan(ctx, &name, "PostMessageHTML")
+	log := logger.GetLoggerComponent(ctx, name)
 	config := c.config.GetValues().Telegram
 
-	log.Debugf("trying to send message: %s", message)
+	log.Debug("trying to send message", zap.String("message", string(message)))
 	_, err := c.api.Send(utils.CreateTelegramHTMLMessage(config.ChatForFeed, message))
 	if err != nil {
-		log.Errorf("telegram send error: %s", err.Error())
+		log.Error("telegram send error: %s", zap.Error(err))
 		return err
 	}
-	log.Infof("telegram message has succesfully sent")
+	log.Info("telegram message has succesfully sent")
 
 	return err
 }

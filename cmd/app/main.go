@@ -70,7 +70,7 @@ func main() {
 
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
-	storage := storage.NewStorage(configsCache, db.CreateInstance(configsCache))
+	storage := storage.NewStorage(configsCache, db.CreateInstance(ctx, configsCache))
 
 	tgBot, err := tgbotapi.NewBotAPI(config.Telegram.Token)
 	if err != nil {

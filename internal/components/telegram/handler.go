@@ -4,13 +4,15 @@ import (
 	"context"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/labstack/gommon/log"
 )
 
 func (c *Component) handler(ctx context.Context, output chan<- entities.Message) {
 	for update := range c.updates {
-		if !c.messageFilter(&update) {
+		ctx = logger.CreateSpan(ctx, &name, "handler")
+		log := logger.GetLoggerComponent(ctx, name)
+		if !c.messageFilter(ctx, &update) {
 			log.Info("message filtered")
 			continue
 		}

@@ -4,14 +4,18 @@ import (
 	"context"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	"github.com/IlyaZh/feedsgram/internal/queries"
-	"github.com/labstack/gommon/log"
+
+	"go.uber.org/zap"
 )
 
 func (c *Component) UpsertSource(ctx context.Context, source entities.Source) (id int64, err error) {
+	ctx = logger.CreateSpan(ctx, &name, "UpsetSource")
+	log := logger.GetLoggerComponent(ctx, name)
 	stmt, err := c.db.Pool().PrepareNamedContext(ctx, queries.UpsertSources)
 	if err != nil {
-		log.Errorf("Error wile prepare statement in upsert source method. Error: %s", err.Error())
+		log.Error("Error wile prepare statement in upsert source method", zap.Error(err))
 		return
 	}
 

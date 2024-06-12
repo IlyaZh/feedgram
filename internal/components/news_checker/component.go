@@ -8,6 +8,8 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/utils"
 )
 
+var name string = "NewsSender"
+
 //go:generate mockgen -source component.go -package mocks -destination mocks/component.go
 type NewsChecker interface {
 	utils.Executer

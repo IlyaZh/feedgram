@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
-	"github.com/labstack/gommon/log"
+	"github.com/IlyaZh/feedsgram/internal/logger"
+
+	"go.uber.org/zap"
 )
 
 func (c *Component) requestFeed(ctx context.Context, source entities.Source) (*[]entities.FeedItem, error) {
@@ -13,6 +15,8 @@ func (c *Component) requestFeed(ctx context.Context, source entities.Source) (*[
 		return nil, err
 	}
 
-	log.Infof("Got %d posts from feed (id=%d): %s", len(feed.Items), source.Id, source.Link)
+	ctx = logger.CreateSpan(ctx, &name, "requestFeed")
+	log := logger.GetLoggerComponent(ctx, name)
+	log.Info("got photos from feed", zap.Int("count", len(feed.Items)), zap.Int64("source_id", source.Id), zap.String("source_link", string(source.Link)))
 	return &feed.Items, err
 }

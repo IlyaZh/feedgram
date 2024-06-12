@@ -6,11 +6,14 @@ import (
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	"github.com/mmcdole/gofeed"
-	"google.golang.org/appengine/log"
+	"go.uber.org/zap"
 )
 
 func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan *time.Time, lastPostLink *string) (entities.Feed, error) {
+	ctx = logger.CreateSpan(ctx, &name, "ReadFeed")
+	log := logger.GetLoggerComponent(ctx, name)
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
@@ -20,15 +23,7 @@ func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan 
 		return entities.Feed{}, err
 	}
 
-	dNewerThan := "nil"
-	dLastPostLink := "nil"
-	if newerThan != nil {
-		dNewerThan = newerThan.Format(time.DateTime)
-	}
-	if lastPostLink != nil {
-		dLastPostLink = *lastPostLink
-	}
-	log.Debugf("newerThan = %s, lastPostLink = %s", dNewerThan, dLastPostLink)
+	log.Debug("post is newer than another", zap.Timep("newer_than", newerThan), zap.Stringp("last_post_link", lastPostLink))
 
 	sort.Slice(feed.Items, func(i, j int) bool {
 		if feed.Items[i] == nil && feed.Items[j] == nil {

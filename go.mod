@@ -21,6 +21,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jamillosantos/logctx v0.2.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

@@ -1,15 +1,20 @@
 package configs
 
 import (
+	"context"
 	"time"
 
 	"github.com/IlyaZh/feedsgram/internal/consts"
-	"github.com/labstack/gommon/log"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 
 	"gopkg.in/yaml.v2"
 )
 
-func (c *Config) Scan(v []byte, secdist SecDist) error {
+var name string = "Config"
+
+func (c *Config) Scan(ctx context.Context, v []byte, secdist SecDist) error {
+	ctx = logger.CreateSpan(ctx, &name, "Scan")
+	log := logger.GetLoggerComponent(ctx, name)
 	var raw configRaw
 	err := yaml.Unmarshal(v, &raw)
 	if err != nil {

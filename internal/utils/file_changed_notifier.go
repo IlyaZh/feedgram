@@ -1,14 +1,18 @@
 package utils
 
 import (
+	"context"
 	"path/filepath"
 	"time"
 
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	"github.com/fsnotify/fsnotify"
-	"github.com/labstack/gommon/log"
+	"go.uber.org/zap"
 )
 
-func FileChangedNotify(filePath string, execFunc func() error) {
+func FileChangedNotify(ctx context.Context, filePath string, execFunc func(ctx context.Context) error) {
+	ctx = logger.CreateTrace(ctx)
+	log := logger.GetLogger(ctx)
 	lastSyncTime := time.Now()
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -31,10 +35,10 @@ func FileChangedNotify(filePath string, execFunc func() error) {
 			syncTime := time.Now()
 			if event.Has(fsnotify.Write) && event.Name == filePath && syncTime.After(lastSyncTime.Add(time.Duration(1)*time.Second)) { // debounce
 				lastSyncTime = syncTime
-				log.Debugf("modified file: %s", filePath)
-				err = execFunc()
+				log.Debug("file has modified", zap.String("file_path", filePath))
+				err = execFunc(ctx)
 				if err != nil {
-					log.Errorf("error while execute function for file watcher. File = '%s', error = '%s'", filePath, err.Error())
+					log.Error("error while execute function for file watche", zap.String("file_path", filePath), zap.Error(err))
 					panic(err)
 				}
 			}
