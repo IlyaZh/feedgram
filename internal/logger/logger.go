@@ -7,7 +7,32 @@ import (
 	"github.com/google/uuid"
 	"github.com/jamillosantos/logctx"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
+
+func outputPaths() []string {
+	return []string{"/var/log/feedgram/feedgram.log"}
+}
+
+func NewLogger(ctx context.Context, isDebug bool) *zap.Logger {
+	var logger *zap.Logger
+	var err error
+	if isDebug {
+		logger, err = zap.NewDevelopmentConfig().Build()
+	} else {
+		config := zap.NewProductionConfig()
+		cfgEncode := zap.NewProductionEncoderConfig()
+		cfgEncode.EncodeTime = zapcore.ISO8601TimeEncoder
+		config.EncoderConfig = cfgEncode
+		config.OutputPaths = outputPaths()
+		config.ErrorOutputPaths = outputPaths()
+		logger, err = config.Build()
+	}
+	if err != nil {
+		panic(err)
+	}
+	return logger
+}
 
 func GetLogger(ctx context.Context) *zap.Logger {
 	return logctx.From(ctx)
