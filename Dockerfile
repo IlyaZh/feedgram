@@ -5,6 +5,7 @@ WORKDIR /app
 COPY ./go.mod ./go.sum ./Makefile ./
 RUN mkdir ./configs
 RUN mkdir ./deploy
+RUN mkdir /var/log/feedgram
 RUN go mod download
 RUN go install go.uber.org/mock/mockgen@latest
 RUN export PATH=$PATH:$(go env GOPATH)/bin

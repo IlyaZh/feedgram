@@ -17,6 +17,7 @@ import (
 	"github.com/IlyaZh/feedsgram/internal/consts"
 	"github.com/IlyaZh/feedsgram/internal/db"
 	"github.com/IlyaZh/feedsgram/internal/entities"
+	"github.com/IlyaZh/feedsgram/internal/logger"
 	"github.com/IlyaZh/feedsgram/internal/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jamillosantos/logctx"
@@ -41,19 +42,9 @@ func wait(ctx context.Context) {
 func main() {
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
 	isDebug := (workEnv == consts.EnvironmentDebug)
-	var logger *zap.Logger
-	var err error
-	if isDebug {
-		logger, err = zap.NewDevelopment()
-	} else {
-		logger, err = zap.NewProduction()
-	}
-	if err != nil {
-		panic(err)
-	}
 
 	ctx := context.TODO()
-	ctx = logctx.WithLogger(ctx, logger.With(zap.String("service", consts.ServiceName)))
+	ctx = logctx.WithLogger(ctx, logger.NewLogger(ctx, isDebug).With(zap.String("service", consts.ServiceName)))
 
 	logctx.Info(ctx, "Service initialization start")
 

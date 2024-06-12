@@ -12,6 +12,7 @@ services:
       - ./.env
     volumes:
       - ./configs:/app/configs
+      - ./logs:/var/log/feedgram
     networks:
       - db
     

@@ -27,3 +27,4 @@ go.work
 .env
 app
 mocks/
+logs/
