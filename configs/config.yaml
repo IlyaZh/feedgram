@@ -26,6 +26,7 @@ rss_reader:
         max_post_per_feed: 3
         new_feeds:
             at_least_once_post: true
+    user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:126.0) Gecko/20100101 Firefox/126.0'
 news_checker:
     # period_min: 600
     period_min: 1
@@ -43,3 +44,6 @@ formatter:
              
         footer:  |
             Updated: {{now}} (UTC)
+metrics_storage:
+    port: 8081
+    compute_period_sec: 10

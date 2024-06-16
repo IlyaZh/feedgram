@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/IlyaZh/feedsgram/internal/caches/configs"
+	"github.com/IlyaZh/feedsgram/internal/components/metrics_storage"
 	"github.com/IlyaZh/feedsgram/internal/entities"
 	"github.com/IlyaZh/feedsgram/internal/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -24,14 +25,16 @@ type Component struct {
 	config  configs.ConfigsCache
 	api     TelegramAPI
 	updates tgbotapi.UpdatesChannel
+	metrics metrics_storage.MetricsStorage
 }
 
-func NewTelegram(config configs.ConfigsCache, tgApi TelegramAPI) *Component {
+func NewTelegram(config configs.ConfigsCache, tgApi TelegramAPI, metrics metrics_storage.MetricsStorage) *Component {
 	return &Component{
-		token:  config.GetValues().Telegram.Token,
-		config: config,
-		api:    tgApi,
-		offset: 0}
+		token:   config.GetValues().Telegram.Token,
+		config:  config,
+		api:     tgApi,
+		offset:  0,
+		metrics: metrics}
 }
 
 func (c *Component) Start(ctx context.Context, output chan<- entities.Message) {

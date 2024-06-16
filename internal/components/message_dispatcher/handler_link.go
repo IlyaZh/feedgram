@@ -16,7 +16,7 @@ func (c *Component) handler_link(ctx context.Context, link entities.Link) {
 	log := logger.GetLogger(ctx)
 
 	now := time.Now()
-	feed, err := c.rss_reader.ReadFeed(ctx, link, &now, nil)
+	feed, err := c.rss_reader.ReadFeed(ctx, link, &now, nil, nil)
 	if err != nil {
 		if err == gofeed.ErrFeedTypeNotDetected {
 			log.Info("Feed type is not detected. Skip")

@@ -18,8 +18,10 @@ func (c *Component) PostMessageHTML(ctx context.Context, message entities.Telegr
 	_, err := c.api.Send(utils.CreateTelegramHTMLMessage(config.ChatForFeed, message))
 	if err != nil {
 		log.Error("telegram send error: %s", zap.Error(err))
+		c.metrics.LinkPostError(1)
 		return err
 	}
+	c.metrics.LinkPosted(1)
 	log.Info("telegram message has succesfully sent")
 
 	return err
