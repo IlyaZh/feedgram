@@ -42,7 +42,7 @@ func (c *Component) Execute(ctx context.Context) {
 			go func(source entities.Source) {
 				defer wg.Done()
 
-				items, err := c.requestFeed(ctx, source)
+				items, err := c.requestFeed(ctx, source, rssConfig.UserAgent)
 				if err != nil {
 					log.Warn("getting feed process has failed", zap.Int64("source_id", source.Id), zap.String("source_url", source.URL), zap.Error(err))
 					return
@@ -59,6 +59,11 @@ func (c *Component) Execute(ctx context.Context) {
 						Id:       source.Id,
 					}
 				}
+				sourceName := source.URL
+				if len(sourceName) == 0 {
+					sourceName = string(source.Link)
+				}
+				c.metrics.SourceSyncDone(sourceName)
 			}(source)
 		}
 

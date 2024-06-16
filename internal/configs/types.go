@@ -3,19 +3,21 @@ package configs
 import "time"
 
 type Config struct {
-	Telegram    Telegram
-	Mysql       Mysql
-	RssReader   RssReader
-	NewsChecker NewsChecker
-	Formatter   Formatter
+	Telegram       Telegram
+	Mysql          Mysql
+	RssReader      RssReader
+	NewsChecker    NewsChecker
+	Formatter      Formatter
+	MetricsStorage MetricsStorage
 }
 
 type configRaw struct {
-	Telegram     telegramRaw    `yaml:"telegram"`
-	Mysql        mysqlRaw       `yaml:"mysql"`
-	RssReader    rssReaderRaw   `yaml:"rss_reader"`
-	NewsChecker  newsCheckerRaw `yaml:"news_checker"`
-	FormatterRaw formatterRaw   `yaml:"formatter"`
+	Telegram       telegramRaw       `yaml:"telegram"`
+	Mysql          mysqlRaw          `yaml:"mysql"`
+	RssReader      rssReaderRaw      `yaml:"rss_reader"`
+	NewsChecker    newsCheckerRaw    `yaml:"news_checker"`
+	Formatter      formatterRaw      `yaml:"formatter"`
+	MetricsStorage metricsStorageRaw `yaml:"metrics_storage"`
 }
 
 type Telegram struct {
@@ -66,12 +68,14 @@ type RssReader struct {
 	Timeout       time.Duration
 	BufferSize    int
 	PostsSettings rssReaderPostsSettings
+	UserAgent     *string
 }
 
 type rssReaderRaw struct {
 	Timeout      int                       `yaml:"timeout"`
 	BufferSize   *int                      `yaml:"buffer_size,omitempty"`
 	PostSettings rssReaderPostsSettingsRaw `yaml:"posts_settings"`
+	UserAgent    *string                   `yaml:"user_agent`
 }
 
 type rssReaderPostsSettingsRaw struct {
@@ -121,3 +125,7 @@ type FormatterItem struct {
 	Loop   string
 	Footer *string
 }
+
+type MetricsStorage map[string]interface{}
+
+type metricsStorageRaw map[string]interface{}

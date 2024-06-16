@@ -11,13 +11,16 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan *time.Time, lastPostLink *string) (entities.Feed, error) {
+func (c *Component) ReadFeed(ctx context.Context, link entities.Link, newerThan *time.Time, lastPostLink, userAgent *string) (entities.Feed, error) {
 	ctx = logger.CreateSpan(ctx, &name, "ReadFeed")
 	log := logger.GetLoggerComponent(ctx, name)
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
 	fp := gofeed.NewParser()
+	if userAgent != nil {
+		fp.UserAgent = *userAgent
+	}
 	feed, err := fp.ParseURLWithContext(string(link), ctx)
 	if err != nil {
 		return entities.Feed{}, err

@@ -72,6 +72,7 @@ func (c *Config) Scan(ctx context.Context, v []byte, secdist SecDist) error {
 				AtLeastOncePost: raw.RssReader.PostSettings.NewFeeds.AtLeastOncePost,
 			},
 		},
+		UserAgent: raw.RssReader.UserAgent,
 	}
 
 	newsCheckerBufferSize := consts.ChannelDefaultBufferSize
@@ -86,13 +87,15 @@ func (c *Config) Scan(ctx context.Context, v []byte, secdist SecDist) error {
 	}
 
 	c.Formatter = make(Formatter)
-	for k, v := range raw.FormatterRaw {
+	for k, v := range raw.Formatter {
 		c.Formatter[k] = FormatterItem{
 			Header: v.Header,
 			Loop:   v.Loop,
 			Footer: v.Footer,
 		}
 	}
+
+	c.MetricsStorage = MetricsStorage(raw.MetricsStorage)
 
 	return nil
 }

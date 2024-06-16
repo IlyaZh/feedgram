@@ -11,6 +11,7 @@ import (
 
 	"github.com/IlyaZh/feedsgram/internal/components/message_dispatcher"
 	"github.com/IlyaZh/feedsgram/internal/components/message_sender"
+	"github.com/IlyaZh/feedsgram/internal/components/metrics_storage"
 	"github.com/IlyaZh/feedsgram/internal/components/news_checker"
 	"github.com/IlyaZh/feedsgram/internal/components/storage"
 	"github.com/IlyaZh/feedsgram/internal/components/telegram"
@@ -43,6 +44,8 @@ func main() {
 	workEnv := os.Getenv(consts.EnvArgEnvironment)
 	isDebug := (workEnv == consts.EnvironmentDebug)
 
+	time.Sleep(time.Second * 10)
+
 	ctx := context.TODO()
 	ctx = logctx.WithLogger(ctx, logger.NewLogger(ctx, isDebug).With(zap.String("service", consts.ServiceName)))
 
@@ -61,13 +64,17 @@ func main() {
 
 	configsCache := config.NewCache(ctx, *configPathArg, *secdistPathArg, time.Duration(5*time.Second))
 	config := configsCache.GetValues()
+
+	metricsStorage := metrics_storage.NewMetricsStorage()
+	metricsStorage.Start(ctx, config.MetricsStorage)
+
 	storage := storage.NewStorage(configsCache, db.CreateInstance(ctx, configsCache))
 
 	tgBot, err := tgbotapi.NewBotAPI(config.Telegram.Token)
 	if err != nil {
 		panic(err)
 	}
-	telegram := telegram.NewTelegram(configsCache, tgBot)
+	telegram := telegram.NewTelegram(configsCache, tgBot, metricsStorage)
 
 	messageBuffer := make(chan entities.Message, config.RssReader.BufferSize)
 	telegram.Start(ctx, messageBuffer)
@@ -79,7 +86,7 @@ func main() {
 
 	feedsChannel := make(chan []entities.FeedItem, config.NewsChecker.BufferSize)
 
-	newsCheckerPeriodc := utils.NewPeriodic("news checker", news_checker.NewNewsChecker(configsCache, feedsChannel, storage))
+	newsCheckerPeriodc := utils.NewPeriodic("news checker", news_checker.NewNewsChecker(configsCache, feedsChannel, storage, metricsStorage))
 	newsCheckerPeriodc.Start(ctx)
 
 	sender := message_sender.NewMeesageSender(configsCache, telegram, feedsChannel, postsChannel)

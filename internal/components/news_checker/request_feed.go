@@ -9,8 +9,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *Component) requestFeed(ctx context.Context, source entities.Source) (*[]entities.FeedItem, error) {
-	feed, err := c.reader.ReadFeed(ctx, source.Link, source.LastPostAt, source.LastPostLink)
+func (c *Component) requestFeed(ctx context.Context, source entities.Source, userAgent *string) (*[]entities.FeedItem, error) {
+	feed, err := c.reader.ReadFeed(ctx, source.Link, source.LastPostAt, source.LastPostLink, userAgent)
 	if err != nil {
 		return nil, err
 	}

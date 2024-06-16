@@ -15,10 +15,14 @@ services:
       - ./logs:/var/log/feedgram
     networks:
       - db
+    links:
+      - db
+    ports:
+      - 8081:8081
     
 
   db:
-    image: mariadb:11.3
+    image: mariadb:11.4.2
     restart: always
     ports:
       - 3306:3306
@@ -29,6 +33,8 @@ services:
       - ./.dbdata:/var/lib/mysql:rw
     networks:
       - db
+    ulimits:
+        memlock: "262144"
 
   adminer:
     image: adminer

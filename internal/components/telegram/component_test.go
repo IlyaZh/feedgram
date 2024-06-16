@@ -6,6 +6,7 @@ import (
 	"time"
 
 	configsMock "github.com/IlyaZh/feedsgram/internal/caches/configs/mocks"
+	metricsMock "github.com/IlyaZh/feedsgram/internal/components/metrics_storage/mocks"
 	storageComponent "github.com/IlyaZh/feedsgram/internal/components/storage"
 	storageMock "github.com/IlyaZh/feedsgram/internal/components/storage/mocks"
 	tgAPIMock "github.com/IlyaZh/feedsgram/internal/components/telegram/mocks"
@@ -65,6 +66,7 @@ func TestComponent_Start(t *testing.T) {
 	configMock := configsMock.NewMockConfigsCache(ctrl)
 	apiMock := tgAPIMock.NewMockTelegramAPI(ctrl)
 	storage := storageMock.NewMockStorage(ctrl)
+	metricsStorageMock := metricsMock.NewMockMetricsStorage(ctrl)
 
 	linkAsMessage := entities.NewMessageLink("http://google.com")
 	commandAsMessage := entities.NewMessageCommand("sources")
@@ -73,6 +75,7 @@ func TestComponent_Start(t *testing.T) {
 		chatID          int64
 		config          *configsMock.MockConfigsCache
 		api             *tgAPIMock.MockTelegramAPI
+		metrics         *metricsMock.MockMetricsStorage
 		updates         chan tgbotapi.Update
 		storage         storageComponent.Storage
 		messageText     string
@@ -89,6 +92,7 @@ func TestComponent_Start(t *testing.T) {
 				chatID:          chatID,
 				config:          configMock,
 				api:             apiMock,
+				metrics:         metricsStorageMock,
 				updates:         make(chan tgbotapi.Update, 10),
 				storage:         storage,
 				messageText:     "Hello http://google.com Vasya",
@@ -102,6 +106,7 @@ func TestComponent_Start(t *testing.T) {
 				chatID:          chatID,
 				config:          configMock,
 				api:             apiMock,
+				metrics:         metricsStorageMock,
 				updates:         make(chan tgbotapi.Update, 10),
 				storage:         storage,
 				messageText:     "/sources",
@@ -115,6 +120,7 @@ func TestComponent_Start(t *testing.T) {
 				chatID:          chatID + 1,
 				config:          configMock,
 				api:             apiMock,
+				metrics:         metricsStorageMock,
 				updates:         make(chan tgbotapi.Update, 10),
 				storage:         storage,
 				messageText:     "Hello http://google.com Vasya",
@@ -128,6 +134,7 @@ func TestComponent_Start(t *testing.T) {
 				chatID:          chatID,
 				config:          configMock,
 				api:             apiMock,
+				metrics:         metricsStorageMock,
 				updates:         make(chan tgbotapi.Update, 10),
 				storage:         storage,
 				messageText:     "Hello Vasya",
@@ -141,6 +148,7 @@ func TestComponent_Start(t *testing.T) {
 				chatID:          chatID,
 				config:          configMock,
 				api:             apiMock,
+				metrics:         metricsStorageMock,
 				updates:         make(chan tgbotapi.Update, 10),
 				storage:         storage,
 				messageText:     "",
@@ -158,10 +166,11 @@ func TestComponent_Start(t *testing.T) {
 			tt.fields.api.EXPECT().GetUpdatesChan(gomock.Any()).Times(1).Return(tt.fields.updates)
 
 			c := &Component{
-				token:  tt.fields.config.GetValues().Telegram.Token,
-				config: tt.fields.config,
-				api:    tt.fields.api,
-				offset: 0}
+				token:   tt.fields.config.GetValues().Telegram.Token,
+				config:  tt.fields.config,
+				api:     tt.fields.api,
+				metrics: tt.fields.metrics,
+				offset:  0}
 			c.Start(context.TODO(), ch)
 
 			tt.fields.updates <- createMessage(tt.fields.messageText, tt.fields.chatID, tt.fields.isCommand)
